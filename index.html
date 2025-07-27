@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetroCompress Lite - Classic 8-bit Compression Algorithms</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        body {
+            font-family: 'VT323', monospace;
+            margin: 0;
+            background-color: #000000;
+            color: #00FF00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 95%;
+            margin: 20px auto;
+            padding: 25px;
+            border: 2px solid #00FF00;
+            box-shadow: 0 0 15px #00FF00, inset 0 0 15px #00FF00;
+            background-color: #1a1a1a;
+        }
+
+        .header h1 {
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+            margin-bottom: 25px;
+            color: #00FF00;
+            text-shadow: 0 0 8px #00FF00;
+            font-size: 2.5em;
+            letter-spacing: 3px;
+        }
+
+        .drop-area {
+            border: 2px dashed #00cc00;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 30px;
+            background-color: #222222;
+            transition: all 0.3s ease;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .drop-area:hover {
+            background-color: #333333;
+            border-color: #00FF00;
+        }
+
+        .drop-area.dragover {
+            background-color: #003300;
+            border-color: #00FF00;
+            box-shadow: 0 0 20px #00FF00;
+        }
+
+        .drop-area p {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.1em;
+            color: #00FF00;
+            text-shadow: 0 0 5px #00FF00;
+            margin: 5px 0;
+        }
+
+        .workflow-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #006600;
+            background-color: #111111;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+
+        .workflow-section.hidden {
+            display: none;
+        }
+
+        .workflow-section h2 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.2em;
+            color: #00FFFF;
+            text-shadow: 0 0 6px #00FFFF;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .file-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .file-info-box {
+            padding: 15px;
+            background-color: #0d0d0d;
+            border: 1px solid #006600;
+        }
+
+        .file-info-box h3 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9em;
+            color: #FFFF00;
+            margin-bottom: 10px;
+        }
+
+        .file-info-box p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .result-box {
+            border: 1px solid #009900;
+            padding: 20px;
+            background-color: #111111;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .result-box h3 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.4em;
+            margin-bottom: 5px;
+            color: #00FFFF;
+            text-shadow: 0 0 6px #00FFFF;
+            cursor: help;
+            transition: all 0.2s ease;
+        }
+
+        .result-box h3:hover {
+            color: #00FF00;
+            text-shadow: 0 0 10px #00FF00;
+        }
+
+        .codec-info {
+            font-size: 0.8em;
+            color: #009900;
+            margin-bottom: 10px;
+        }
+
+        .codec-info p {
+            margin: 2px 0;
+        }
+
+        .result-box pre, .file-info-box pre {
+            background: #0d0d0d;
+            padding: 10px;
+            overflow-x: auto;
+            max-height: 120px;
+            font-size: 0.8em;
+            color: #00FF00;
+            border: 1px solid #006600;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .status-info p {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            color: #00FF00;
+        }
+
+        .status-info span {
+            color: #FFFF00;
+            font-weight: bold;
+        }
+
+        .action-button {
+            background-color: #006600;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border: 2px solid #00cc00;
+            cursor: pointer;
+            margin: 5px 5px 5px 0;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8em;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .action-button:hover:not(:disabled) {
+            background-color: #00FF00;
+            color: #000000;
+            box-shadow: 0 0 15px #00FF00;
+        }
+
+        .action-button:disabled {
+            background-color: #333333;
+            color: #666666;
+            cursor: not-allowed;
+            border-color: #333333;
+            box-shadow: none;
+        }
+
+        .action-button.secondary {
+            background-color: #003366;
+            border-color: #0066cc;
+            box-shadow: 0 0 8px rgba(0, 102, 255, 0.5);
+        }
+
+        .action-button.secondary:hover:not(:disabled) {
+            background-color: #0066FF;
+            color: #FFFFFF;
+            box-shadow: 0 0 15px #0066FF;
+        }
+
+        .status-message {
+            margin-top: 25px;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+            border: 2px solid;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9em;
+        }
+
+        .status-message.success {
+            background-color: #003300;
+            color: #00FF00;
+            border-color: #00FF00;
+        }
+
+        .status-message.error {
+            background-color: #330000;
+            color: #FF0000;
+            border-color: #FF0000;
+        }
+
+        .status-message.info {
+            background-color: #000033;
+            color: #00FFFF;
+            border-color: #00FFFF;
+        }
+
+        .status-message.warning {
+            background-color: #333300;
+            color: #FFFF00;
+            border-color: #FFFF00;
+        }
+
+        .about-section {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #006600;
+            background-color: #0d0d0d;
+            font-size: 0.9em;
+            color: #009900;
+            text-align: center;
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.2);
+        }
+
+        .about-section p {
+            margin: 5px 0;
+            font-family: 'VT323', monospace;
+            letter-spacing: 1px;
+        }
+
+        .about-section a {
+            color: #00FF00;
+            text-decoration: none;
+        }
+
+        .about-section a:hover {
+            text-shadow: 0 0 5px #00FF00;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .reset-button {
+            background-color: #660000;
+            border-color: #cc0000;
+            box-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
+        }
+
+        .reset-button:hover:not(:disabled) {
+            background-color: #FF0000;
+            color: #FFFFFF;
+            box-shadow: 0 0 15px #FF0000;
+        }
+
+        .processing-indicator {
+            text-align: center;
+            padding: 20px;
+            font-family: 'Press Start 2P', cursive;
+            color: #00FFFF;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .codec-status {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #0d0d0d;
+            border: 1px solid #006600;
+        }
+
+        .codec-status h3 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8em;
+            color: #FFFF00;
+            margin-bottom: 10px;
+        }
+
+        .codec-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .codec-item {
+            padding: 8px;
+            background-color: #111111;
+            border: 1px solid #006600;
+            font-size: 0.8em;
+        }
+
+        .codec-item.loaded {
+            border-color: #00FF00;
+            color: #00FF00;
+        }
+
+        .codec-item.failed {
+            border-color: #FF0000;
+            color: #FF0000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>RetroCompress Lite</h1>
+            <p>Universal Multi-Codec Tool</p>
+            <p style="font-size: 0.8em; color: #009900; margin-top: 10px;">Compress • Decompress • Convert Between Formats</p>
+        </header>
+
+        <!-- Codec Status Display -->
+        <div id="codecStatus" class="codec-status">
+            <h3>CODEC STATUS</h3>
+            <div id="codecList" class="codec-list">
+                <div class="codec-item">Loading codecs...</div>
+            </div>
+        </div>
+
+        <input type="file" id="fileInput" class="hidden" accept="">
+        
+        <label for="fileInput" id="dropArea" class="drop-area">
+            <div>
+                <p>>> DRAG & DROP ANY FILE HERE <<</p>
+                <p>RAW FILES OR COMPRESSED FILES</p>
+                <p style="font-family: 'VT323', monospace; color: #009900; font-size: 0.9em;">AUTO-DETECTION OF COMPRESSION FORMATS</p>
+                <p style="font-family: 'VT323', monospace; color: #006600; font-size: 0.8em; margin-top: 10px;">MAXIMUM FILE SIZE: 256KB</p>
+                <span id="fileName" style="display: block; margin-top: 16px; color: #FFFF00; text-shadow: 0 0 5px #FFFF00;">NO FILE SELECTED</span>
+            </div>
+        </label>
+
+        <div id="processingIndicator" class="processing-indicator hidden">
+            <p>PROCESSING FILE...</p>
+            <p style="font-size: 0.7em; margin-top: 10px;">ANALYZING • DECOMPRESSING • COMPRESSING</p>
+        </div>
+
+        <!-- File Analysis Section -->
+        <div id="fileAnalysisSection" class="workflow-section hidden">
+            <h2>FILE ANALYSIS</h2>
+            <div id="fileAnalysisContent" class="file-info"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="resetButton" class="action-button reset-button">RESET & LOAD NEW FILE</button>
+            </div>
+        </div>
+
+        <!-- Decompression Results Section -->
+        <div id="decompressionSection" class="workflow-section hidden">
+            <h2>DECOMPRESSION RESULTS</h2>
+            <div id="decompressionContent"></div>
+        </div>
+
+        <!-- Compression Results Section -->
+        <div id="compressionSection" class="workflow-section hidden">
+            <h2>COMPRESSION RESULTS</h2>
+            <div id="compressionContent" class="results-grid"></div>
+        </div>
+
+        <div id="statusMessage" class="status-message hidden"></div>
+
+        <div class="about-section">
+            <p>MODULAR COMPRESSION TOOL - EASILY EXTENSIBLE ARCHITECTURE</p>
+            <p>COMPRESSION FORMATS BY LEGENDARY 8-BIT DEVELOPERS</p>
+            <p style="margin-top: 10px; font-size: 0.8em;">ADD NEW CODECS BY DROPPING FILES IN THE CODECS FOLDER</p>
+            <p style="font-size: 0.8em;">POWERED BY ES6 MODULES FOR MAXIMUM MAINTAINABILITY</p>
+        </div>
+    </div>
+
+    <!-- Load codec configuration and application core -->
+    <script type="module">
+        // Import codec configuration
+        import { CODEC_CONFIG, loadCodecs, getCodecList } from './js/codecConfig.js';
+        import { RetroCompressApp } from './js/app.js';
+
+        // Initialize application
+        let app = null;
+
+        async function initializeApp() {
+            try {
+                // Load all configured codecs
+                const codecs = await loadCodecs();
+                
+                // Update codec status display
+                updateCodecStatus(codecs);
+                
+                // Initialize main application
+                app = new RetroCompressApp(codecs, CODEC_CONFIG);
+                
+                // Setup event handlers
+                setupEventHandlers();
+                
+                console.log('RetroCompress Lite initialized successfully');
+                app.showStatus('Universal retro compression tool ready', 'info');
+                
+            } catch (error) {
+                console.error('Failed to initialize application:', error);
+                document.getElementById('statusMessage').textContent = 'Failed to initialize: ' + error.message;
+                document.getElementById('statusMessage').className = 'status-message error';
+                document.getElementById('statusMessage').classList.remove('hidden');
+            }
+        }
+
+        function updateCodecStatus(codecs) {
+            const codecList = document.getElementById('codecList');
+            const codecNames = getCodecList();
+            
+            codecList.innerHTML = '';
+            codecNames.forEach(codecName => {
+                const item = document.createElement('div');
+                item.className = 'codec-item';
+                
+                if (codecs[codecName]) {
+                    item.classList.add('loaded');
+                    const info = CODEC_CONFIG.formats[codecName];
+                    item.innerHTML = `✅ ${info.name}<br><small>${info.author}</small>`;
+                } else {
+                    item.classList.add('failed');
+                    item.innerHTML = `❌ ${codecName.toUpperCase()}<br><small>Failed to load</small>`;
+                }
+                
+                codecList.appendChild(item);
+            });
+        }
+
+        function setupEventHandlers() {
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const resetButton = document.getElementById('resetButton');
+
+            // Update file input accept attribute based on supported formats
+            const extensions = Object.values(CODEC_CONFIG.formats).flatMap(f => f.extensions);
+            fileInput.accept = '.bin,.dat,.txt,.js,.json,.css,.html,.xml,.log,.csv,.md,' + extensions.join(',');
+
+            // Drag and drop handlers
+            dropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropArea.classList.add('dragover');
+            });
+
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.classList.remove('dragover');
+            });
+
+            dropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropArea.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    app.handleFile(e.dataTransfer.files[0]);
+                }
+            });
+
+            // File input handler
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    app.handleFile(e.target.files[0]);
+                }
+            });
+
+            // Reset button handler
+            resetButton.addEventListener('click', () => {
+                app.resetWorkflow();
+                fileInput.value = '';
+                document.getElementById('fileName').textContent = 'NO FILE SELECTED';
+                app.showStatus('Ready for new file', 'info');
+            });
+
+            // Global functions for decompression buttons
+            window.downloadDecompressed = () => app.downloadDecompressed();
+            window.useDecompressedAsInput = () => app.useDecompressedAsInput();
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+
+</html>
