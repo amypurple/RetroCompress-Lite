@@ -38,17 +38,6 @@ export const CODEC_CONFIG = {
             enabled: true,
             category: 'lzss'
         },
-        dan3op: {
-            name: 'DAN3-OP',
-            author: 'Amy Bienvenu (NewColeco)',
-            year: '2018',
-            description: 'Modern LZSS variant optimized for ColecoVision and other 8-bit systems',
-            extensions: ['.dan3'],
-            module: './codecs/dan3-op.js',
-            className: 'DAN3OPCodec',
-            enabled: true,
-            category: 'lzss'
-        },        
         pletter: {
             name: 'Pletter v0.5',
             author: 'XL2S Entertainment (Sander Zuidema)',
