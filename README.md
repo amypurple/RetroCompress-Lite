@@ -15,6 +15,8 @@ RetroCompress Lite/
 │   ├── utils.js                  # Utility functions
 │   └── codecs/                   # Individual codec modules
 │       ├── dan3.js              # DAN3 compression codec
+│       ├── lzf.js               # LZF compression codec
+│       ├── mdkrle.js            # MdK-RLE compression codec
 │       ├── pletter.js           # Pletter v0.5 codec
 │       ├── zx7.js               # ZX7 optimal compression codec
 │       └── zx0.js               # ZX0 state-of-the-art codec
@@ -46,6 +48,8 @@ RetroCompress Lite/
 | Codec | Author | Year | Description | Extensions |
 |-------|--------|------|-------------|------------|
 | **DAN3** | Amy Bienvenu | 2018 | Modern LZSS for ColecoVision | `.dan3` |
+| **MDK-RLE** | Marcel deKogel | 1998 | RLE for ColecoVision and Coleco ADAM | `.mdkrle` |
+| **LZF** | Marc Lehmann | 2005 | Fast byte-aligned LZ77 | `.lzf` |
 | **Pletter** | XL2S Entertainment | 2008 | Fast Z80 decompressor for MSX | `.plet5` |
 | **ZX7** | Einar Saukas | 2012 | Optimal LZ77 for ZX Spectrum | `.zx7` |
 | **ZX0** | Einar Saukas | 2021 | State-of-the-art evolution of ZX7 | `.zx0` |
