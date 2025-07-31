@@ -3,7 +3,7 @@
  * Handles UI interactions, file processing, and workflow management
  */
 
-import { detectCompressionFormat, getFileExtension, getEnabledCodecsInOrder } from './codecConfig.js';
+import { detectCompressionFormat, getFileExtension, getEnabledCodecsInOrder, getEnabledCodecCount } from './codecConfig.js';
 import * as Utils from './utils.js';
 
 export class RetroCompressApp {
@@ -15,7 +15,7 @@ export class RetroCompressApp {
         this.originalFileName = '';
         this.compressionFormat = null;
         this.allCompressionResults = [];
-        
+
         console.log('RetroCompress App initialized with', Object.keys(codecs).length, 'codecs');
     }
 
@@ -28,28 +28,28 @@ export class RetroCompressApp {
 
         this.originalFileName = file.name.split('.')[0] || 'file';
         document.getElementById('fileName').textContent = file.name;
-        
+
         // Reset sections
         this.resetWorkflow();
-        
+
         const reader = new FileReader();
         reader.onload = async (e) => {
             this.originalData = new Uint8Array(e.target.result);
             this.compressionFormat = detectCompressionFormat(file.name);
-            
+
             this.showStatus(`File loaded: ${file.name} (${Utils.formatFileSize(this.originalData.length)})`, 'info');
             document.getElementById('processingIndicator').classList.remove('hidden');
-            
+
             await this.processFile(file.name, this.originalData, this.compressionFormat);
-            
+
             document.getElementById('processingIndicator').classList.add('hidden');
         };
-        
+
         reader.onerror = () => {
             this.showStatus('Error reading file', 'error');
             document.getElementById('processingIndicator').classList.add('hidden');
         };
-        
+
         reader.readAsArrayBuffer(file);
     }
 
@@ -62,11 +62,11 @@ export class RetroCompressApp {
     async processFile(fileName, data, format) {
         // Show file analysis
         this.displayFileAnalysis(fileName, data, format);
-        
+
         if (format) {
             // Try to decompress first
             await this.attemptDecompression(data, format);
-            
+
             if (this.decompressedData) {
                 // Compress the decompressed data in all formats
                 await this.runAllCompressions(this.decompressedData);
@@ -78,7 +78,7 @@ export class RetroCompressApp {
             // Raw file - just compress in all formats
             await this.runAllCompressions(data);
         }
-        
+
         this.displaySortedResults();
     }
 
@@ -91,9 +91,9 @@ export class RetroCompressApp {
     displayFileAnalysis(fileName, data, format) {
         const analysisSection = document.getElementById('fileAnalysisSection');
         const content = document.getElementById('fileAnalysisContent');
-        
+
         const crc32 = '0x' + Utils.calculateCrc32(data).toString(16).toUpperCase().padStart(8, '0');
-        
+
         content.innerHTML = `
             <div class="file-info-box">
                 <h3>FILE INFORMATION</h3>
@@ -107,7 +107,7 @@ export class RetroCompressApp {
                 <pre style="background: #0d0d0d; padding: 10px; font-size: 0.8em; border: 1px solid #006600; margin-top: 10px;">${Utils.arrayToHex(data, 128)}</pre>
             </div>
         `;
-        
+
         analysisSection.classList.remove('hidden');
     }
 
@@ -119,24 +119,29 @@ export class RetroCompressApp {
     async attemptDecompression(data, format) {
         const decompressionSection = document.getElementById('decompressionSection');
         const content = document.getElementById('decompressionContent');
-        
+
         try {
             const codec = this.codecs[format];
             if (!codec) {
                 throw new Error(`Codec ${format} not available`);
             }
-            
-            this.decompressedData = await codec.decompress(data, {});
+
+            const { result, duration } = await Utils.timeOperation(
+                `${format.toUpperCase()} decompression`,
+                () => codec.decompress(data, {})
+            );
+            this.decompressedData = result;
             const decompressedCrc = '0x' + Utils.calculateCrc32(this.decompressedData).toString(16).toUpperCase().padStart(8, '0');
-            
+
             const ratio = ((data.length / this.decompressedData.length) * 100).toFixed(2);
             const codecInfo = this.codecConfig.formats[format];
-            
+
             content.innerHTML = `
                 <div class="file-info-box">
                     <h3>DECOMPRESSION SUCCESS</h3>
                     <p>CODEC: <span style="color: #00FFFF;">${codecInfo.name}</span></p>
                     <p>AUTHOR: <span style="color: #009900;">${codecInfo.author}</span></p>
+                    <p>TIME: <span style="color: #00FF00;">${duration.toFixed(2)} ms</span></p>
                     <p>ORIGINAL SIZE: <span style="color: #FFFF00;">${Utils.formatFileSize(data.length)}</span></p>
                     <p>DECOMPRESSED SIZE: <span style="color: #00FF00;">${Utils.formatFileSize(this.decompressedData.length)}</span></p>
                     <p>COMPRESSION RATIO: <span style="color: #00FF00;">${ratio}%</span></p>
@@ -151,10 +156,10 @@ export class RetroCompressApp {
                     <pre style="background: #0d0d0d; padding: 10px; font-size: 0.8em; border: 1px solid #006600; margin-top: 10px;">${Utils.arrayToHex(this.decompressedData, 128)}</pre>
                 </div>
             `;
-            
+
             decompressionSection.classList.remove('hidden');
             this.showStatus(`Successfully decompressed ${format.toUpperCase()} file`, 'success');
-            
+
         } catch (error) {
             content.innerHTML = `
                 <div class="file-info-box">
@@ -174,7 +179,15 @@ export class RetroCompressApp {
      */
     async runAllCompressions(data) {
         const codecOrder = getEnabledCodecsInOrder();
+        const enabledCount = getEnabledCodecCount();
+
+        if (enabledCount === 0) {
+            this.showStatus('No codecs enabled for compression testing', 'error');
+            return;
+        }
+
         this.allCompressionResults = [];
+        console.log(`Running compression with ${enabledCount} enabled codecs:`, codecOrder);
 
         for (const codecName of codecOrder) {
             if (!this.codecs[codecName]) {
@@ -186,9 +199,15 @@ export class RetroCompressApp {
             let compressedData = null, testDecompressedData = null;
             let compressionSuccess = false, decompressionSuccess = false;
             let compressionError = '', decompressionError = '', ratio = 0;
+            let compressionTime = 0, decompressionTime = 0;
 
             try {
-                compressedData = await codec.compress(data, {});
+                const compResult = await Utils.timeOperation(
+                    `${codecName} compression`,
+                    () => codec.compress(data, {})
+                );
+                compressedData = compResult.result;
+                compressionTime = compResult.duration;
                 compressionSuccess = true;
                 ratio = ((1 - (compressedData.length / data.length)) * 100);
             } catch (e) {
@@ -197,7 +216,12 @@ export class RetroCompressApp {
 
             if (compressionSuccess && compressedData) {
                 try {
-                    testDecompressedData = await codec.decompress(compressedData, {});
+                    const decompResult = await Utils.timeOperation(
+                        `${codecName} validation decompression`,
+                        () => codec.decompress(compressedData, {})
+                    );
+                    testDecompressedData = decompResult.result;
+                    decompressionTime = decompResult.duration;
                     decompressionSuccess = (data.length === testDecompressedData.length &&
                         Utils.calculateCrc32(data) === Utils.calculateCrc32(testDecompressedData));
                 } catch (e) {
@@ -215,10 +239,12 @@ export class RetroCompressApp {
                 compressionError,
                 decompressionError,
                 ratio: parseFloat(ratio),
+                compressionTime,
+                decompressionTime,
             });
         }
 
-        this.showStatus('All compressions completed', 'success');
+        this.showStatus(`Compression completed with ${enabledCount} codecs`, 'success');
     }
 
     /**
@@ -259,6 +285,8 @@ export class RetroCompressApp {
                 <div class="status-info">
                     <p>COMPRESSED SIZE: <span>${Utils.formatFileSize(compressedSize)}</span> (${compressedSize} bytes)</p>
                     <p>COMPRESSION RATIO: <span>${result.ratio.toFixed(2)}%</span></p>
+                    <p>COMPRESS TIME: <span style="color: #00FFFF;">${result.compressionTime.toFixed(2)} ms</span></p>
+                    <p>DECOMPRESS TIME: <span style="color: #00FFFF;">${result.decompressionTime.toFixed(2)} ms</span></p>
                     <p>ORIGINAL CRC-32: <span>${originalCrc}</span></p>
                     <p>DECOMPRESSED CRC-32: <span>${decompressedCrc}</span></p>
                     <p style="color:${validationColor};">${validationMessage}</p>
@@ -306,12 +334,12 @@ export class RetroCompressApp {
             this.originalData = new Uint8Array(this.decompressedData);
             this.compressionFormat = null;
             this.originalFileName = this.originalFileName + '_decompressed';
-            
+
             document.getElementById('fileName').textContent = `${this.originalFileName}.bin (from decompression)`;
-            
+
             // Show file analysis for decompressed data
             this.displayFileAnalysis(`${this.originalFileName}.bin`, this.originalData, null);
-            
+
             // Process as raw data
             document.getElementById('processingIndicator').classList.remove('hidden');
             setTimeout(async () => {
@@ -332,7 +360,7 @@ export class RetroCompressApp {
         document.getElementById('decompressionSection').classList.add('hidden');
         document.getElementById('compressionSection').classList.add('hidden');
         document.getElementById('statusMessage').classList.add('hidden');
-        
+
         // Reset data
         this.decompressedData = null;
         this.allCompressionResults = [];
@@ -349,4 +377,16 @@ export class RetroCompressApp {
         statusDiv.className = `status-message ${type}`;
         statusDiv.classList.remove('hidden');
     }
+
+    /**
+     * Refresh the list of enabled codecs (called when user toggles codecs)
+     */
+    refreshEnabledCodecs() {
+        const enabledCount = getEnabledCodecCount();
+        if (enabledCount === 0) {
+            this.showStatus('⚠️ No codecs enabled for compression testing!', 'warning');
+        }
+        console.log(`Refreshed codec list: ${enabledCount} codecs enabled`);
+    }
+
 }

@@ -5,6 +5,28 @@
 
 export const CODEC_CONFIG = {
     formats: {
+        mdkrle: {
+            name: 'MDK-RLE',
+            author: 'Marcel de Kogel',
+            year: '1998',
+            description: 'Classic RLE format with optimized raw/run packet encoding for Z80.',
+            extensions: ['.mdk', '.rle'],
+            module: './codecs/mdkrle.js', // Make sure this path is correct
+            className: 'MdkRLECodec',
+            enabled: true,
+            category: 'rle'
+        },
+        lzf: {
+            name: 'LZF (Educational)',
+            author: 'Marc Lehmann',
+            year: '2005',
+            description: 'Simplified implementation of the LZF algorithm, designed for very high speed.',
+            extensions: ['.lzf'],
+            module: './codecs/lzf.js',
+            className: 'LZFCodec',
+            enabled: true,
+            category: 'lz77'
+        },        
         dan3: {
             name: 'DAN3',
             author: 'Amy Bienvenu (NewColeco)',
@@ -16,6 +38,17 @@ export const CODEC_CONFIG = {
             enabled: true,
             category: 'lzss'
         },
+        dan3op: {
+            name: 'DAN3-OP',
+            author: 'Amy Bienvenu (NewColeco)',
+            year: '2018',
+            description: 'Modern LZSS variant optimized for ColecoVision and other 8-bit systems',
+            extensions: ['.dan3'],
+            module: './codecs/dan3-op.js',
+            className: 'DAN3OPCodec',
+            enabled: true,
+            category: 'lzss'
+        },        
         pletter: {
             name: 'Pletter v0.5',
             author: 'XL2S Entertainment (Sander Zuidema)',
@@ -53,6 +86,7 @@ export const CODEC_CONFIG = {
     
     // Add new codec categories here for easy organization
     categories: {
+        rle: 'RLE Family',
         lzss: 'LZSS Family',
         lz77: 'LZ77 Family',
         arithmetic: 'Arithmetic Coding',
@@ -63,7 +97,7 @@ export const CODEC_CONFIG = {
     settings: {
         maxFileSize: 256 * 1024, // 256KB
         enableDebugMode: false,
-        defaultCompressionOrder: ['zx0', 'zx7', 'dan3', 'pletter'] // Best to worst typically
+        defaultCompressionOrder: ['zx0', 'dan3', 'zx7', 'pletter','lzf','mdkrle'] // Best to worst typically
     }
 };
 
@@ -263,4 +297,65 @@ export function setCodecEnabled(codecId, enabled) {
  */
 export function getCodecInfo(codecId) {
     return CODEC_CONFIG.formats[codecId] || null;
+}
+
+/**
+ * Enable or disable a codec for compression testing
+ * @param {string} codecId - The codec identifier
+ * @param {boolean} enabled - Whether to enable the codec
+ * @returns {boolean} Success status
+ */
+export function toggleCodec(codecId, enabled = null) {
+    if (CODEC_CONFIG.formats[codecId]) {
+        // If enabled is null, toggle current state
+        if (enabled === null) {
+            CODEC_CONFIG.formats[codecId].enabled = !CODEC_CONFIG.formats[codecId].enabled;
+        } else {
+            CODEC_CONFIG.formats[codecId].enabled = enabled;
+        }
+        
+        const newState = CODEC_CONFIG.formats[codecId].enabled;
+        console.log(`Codec ${codecId} ${newState ? 'enabled' : 'disabled'} for compression testing`);
+        return true;
+    } else {
+        console.warn(`Codec ${codecId} not found`);
+        return false;
+    }
+}
+
+/**
+ * Get the enabled state of a codec
+ * @param {string} codecId - The codec identifier
+ * @returns {boolean} Whether the codec is enabled
+ */
+export function isCodecEnabled(codecId) {
+    return CODEC_CONFIG.formats[codecId]?.enabled || false;
+}
+
+/**
+ * Get count of enabled codecs
+ * @returns {number} Number of enabled codecs
+ */
+export function getEnabledCodecCount() {
+    return Object.values(CODEC_CONFIG.formats).filter(config => config.enabled).length;
+}
+
+/**
+ * Enable all codecs
+ */
+export function enableAllCodecs() {
+    for (const codecId in CODEC_CONFIG.formats) {
+        CODEC_CONFIG.formats[codecId].enabled = true;
+    }
+    console.log('All codecs enabled for compression testing');
+}
+
+/**
+ * Disable all codecs
+ */
+export function disableAllCodecs() {
+    for (const codecId in CODEC_CONFIG.formats) {
+        CODEC_CONFIG.formats[codecId].enabled = false;
+    }
+    console.log('All codecs disabled for compression testing');
 }

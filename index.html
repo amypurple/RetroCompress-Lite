@@ -10,77 +10,305 @@
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
+        :root {
+            --primary-green: #00FF00;
+            --secondary-green: #00cc00;
+            --dark-green: #006600;
+            --bg-black: #000000;
+            --bg-dark: #1a1a1a;
+            --bg-darker: #0d0d0d;
+            --cyan: #00FFFF;
+            --yellow: #FFFF00;
+            --orange: #FF6600;
+            --red: #FF0000;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Allow text selection only in specific elements */
+        pre, code, textarea, input[type="text"], input[type="email"], input[type="search"] {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
         body {
             font-family: 'VT323', monospace;
             margin: 0;
-            background-color: #000000;
-            color: #00FF00;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+            color: var(--primary-green);
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 255, 0, 0.03) 2px,
+                rgba(0, 255, 0, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             width: 95%;
             margin: 20px auto;
-            padding: 25px;
-            border: 2px solid #00FF00;
-            box-shadow: 0 0 15px #00FF00, inset 0 0 15px #00FF00;
-            background-color: #1a1a1a;
+            padding: 30px;
+            border: 3px solid var(--dark-green);
+            border-radius: 8px;
+            box-shadow: 
+                0 0 15px rgba(0, 255, 0, 0.4),
+                inset 0 0 20px rgba(0, 255, 0, 0.1);
+            background: linear-gradient(145deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, var(--primary-green), var(--cyan), var(--primary-green));
+            border-radius: 8px;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
         }
 
         .header h1 {
             font-family: 'Press Start 2P', cursive;
-            text-align: center;
-            margin-bottom: 25px;
-            color: #00FF00;
-            text-shadow: 0 0 8px #00FF00;
-            font-size: 2.5em;
-            letter-spacing: 3px;
+            color: var(--primary-green);
+            text-shadow: 
+                0 0 15px var(--primary-green),
+                2px 2px 0px var(--dark-green);
+            font-size: clamp(1.2em, 3.5vw, 3em);
+            letter-spacing: clamp(1px, 0.5vw, 4px);
+            margin-bottom: 15px;
+            animation: glow 4s ease-in-out infinite alternate;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 15px var(--primary-green), 2px 2px 0px var(--dark-green); }
+            to { text-shadow: 0 0 25px var(--primary-green), 2px 2px 0px var(--dark-green); }
+        }
+
+        .header .subtitle {
+            font-family: 'VT323', monospace;
+            font-size: 1.3em;
+            color: var(--cyan);
+            margin: 5px 0;
+            text-shadow: 0 0 8px var(--cyan);
+        }
+
+        .header .tagline {
+            font-size: 1em;
+            color: var(--secondary-green);
+            margin-top: 15px;
+            opacity: 0.8;
+        }
+
+        .codec-toggle-bar {
+            background: linear-gradient(135deg, var(--bg-darker), var(--bg-dark));
+            border: 2px solid var(--dark-green);
+            border-radius: 6px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .codec-toggle-label {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8em;
+            color: var(--yellow);
+            text-shadow: 0 0 5px var(--yellow);
+            white-space: nowrap;
+        }
+
+        .codec-toggles {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .codec-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--bg-darker);
+            border: 1px solid var(--dark-green);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9em;
+            user-select: none;
+            position: relative;
+        }
+
+        .codec-toggle:hover {
+            border-color: var(--secondary-green);
+            transform: translateY(-1px);
+        }
+
+        .codec-toggle.enabled {
+            border-color: var(--primary-green);
+            background: var(--dark-green);
+            color: var(--yellow);
+        }
+
+        .codec-toggle.disabled {
+            border-color: #333;
+            color: #666;
+            background: #111;
+            opacity: 0.7;
+        }
+
+        .codec-checkbox {
+            width: 14px;
+            height: 14px;
+            border: 2px solid currentColor;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .codec-name {
+            font-family: 'VT323', monospace;
+            font-size: 1em;
+            font-weight: bold;
         }
 
         .drop-area {
-            border: 2px dashed #00cc00;
-            padding: 40px;
+            border: 3px dashed var(--secondary-green);
+            border-radius: 12px;
+            padding: 50px 40px;
             text-align: center;
             cursor: pointer;
-            margin-bottom: 30px;
-            background-color: #222222;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, rgba(0, 255, 0, 0.02) 50%, var(--bg-dark) 100%);
             transition: all 0.3s ease;
-            min-height: 150px;
+            min-height: 180px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            position: relative;
+            overflow: hidden;
         }
 
         .drop-area:hover {
-            background-color: #333333;
-            border-color: #00FF00;
+            background-color: rgba(0, 255, 0, 0.05);
+            border-color: var(--primary-green);
         }
 
         .drop-area.dragover {
-            background-color: #003300;
-            border-color: #00FF00;
-            box-shadow: 0 0 20px #00FF00;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 255, 255, 0.08), rgba(0, 255, 0, 0.1));
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            transform: none;
         }
 
-        .drop-area p {
+        .drop-area-content p {
             font-family: 'Press Start 2P', cursive;
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+
+        .drop-area-content .main-text {
+            font-size: 1.3em;
+            color: var(--primary-green);
+            text-shadow: 0 0 10px var(--primary-green);
+        }
+
+        .drop-area-content .sub-text {
+            font-size: 1em;
+            color: var(--cyan);
+            text-shadow: 0 0 8px var(--cyan);
+        }
+
+        .drop-area-content .info-text {
+            font-family: 'VT323', monospace;
+            color: var(--secondary-green);
             font-size: 1.1em;
-            color: #00FF00;
-            text-shadow: 0 0 5px #00FF00;
-            margin: 5px 0;
+            margin-top: 15px;
+        }
+
+        .drop-area-content .limit-text {
+            font-family: 'VT323', monospace;
+            color: var(--secondary-green);
+            font-size: 1em;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        #fileName {
+            display: block;
+            margin-top: 20px;
+            color: var(--yellow);
+            text-shadow: 0 0 10px var(--yellow);
+            font-size: 1.1em;
+            font-weight: bold;
+            padding: 10px 20px;
+            background: rgba(255, 255, 0, 0.1);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 0, 0.3);
         }
 
         .workflow-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #006600;
-            background-color: #111111;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 2px solid var(--dark-green);
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            box-shadow: 
+                0 0 15px rgba(0, 255, 0, 0.1),
+                inset 0 0 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .workflow-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), var(--cyan));
+            border-radius: 8px 8px 0 0;
         }
 
         .workflow-section.hidden {
@@ -89,124 +317,197 @@
 
         .workflow-section h2 {
             font-family: 'Press Start 2P', cursive;
-            font-size: 1.2em;
-            color: #00FFFF;
-            text-shadow: 0 0 6px #00FFFF;
-            margin-bottom: 15px;
+            font-size: 1.4em;
+            color: var(--cyan);
+            text-shadow: 0 0 10px var(--cyan);
+            margin-bottom: 20px;
             text-align: center;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .workflow-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
         }
 
         .file-info {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
         }
 
         .file-info-box {
-            padding: 15px;
-            background-color: #0d0d0d;
-            border: 1px solid #006600;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--bg-darker), var(--bg-dark));
+            border: 1px solid var(--dark-green);
+            border-radius: 6px;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.6);
         }
 
         .file-info-box h3 {
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.9em;
-            color: #FFFF00;
-            margin-bottom: 10px;
+            font-size: 1em;
+            color: var(--yellow);
+            text-shadow: 0 0 8px var(--yellow);
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 0, 0.3);
+            padding-bottom: 8px;
         }
 
         .file-info-box p {
-            margin: 5px 0;
-            font-size: 0.9em;
+            margin: 8px 0;
+            font-size: 1em;
+            line-height: 1.4;
+        }
+
+        .file-info-box p span {
+            color: var(--yellow);
+            font-weight: bold;
         }
 
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 25px;
-            margin-top: 25px;
+            margin-top: 30px;
         }
 
         .result-box {
-            border: 1px solid #009900;
-            padding: 20px;
-            background-color: #111111;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+            border: 2px solid var(--secondary-green);
+            border-radius: 8px;
+            padding: 25px;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            box-shadow: 
+                0 0 10px rgba(0, 255, 0, 0.1),
+                inset 0 0 10px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .result-box:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary-green);
+            box-shadow: 
+                0 4px 15px rgba(0, 255, 0, 0.2),
+                inset 0 0 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .result-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-green), var(--cyan));
+            border-radius: 8px 8px 0 0;
         }
 
         .result-box h3 {
             font-family: 'Press Start 2P', cursive;
-            font-size: 1.4em;
-            margin-bottom: 5px;
-            color: #00FFFF;
-            text-shadow: 0 0 6px #00FFFF;
+            font-size: 1.2em;
+            margin-bottom: 8px;
+            color: var(--cyan);
+            text-shadow: 0 0 10px var(--cyan);
             cursor: help;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
         }
 
         .result-box h3:hover {
-            color: #00FF00;
-            text-shadow: 0 0 10px #00FF00;
+            color: var(--primary-green);
+            text-shadow: 0 0 15px var(--primary-green);
         }
 
         .codec-info {
-            font-size: 0.8em;
-            color: #009900;
-            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: var(--secondary-green);
+            margin-bottom: 15px;
+            opacity: 0.8;
         }
 
         .codec-info p {
-            margin: 2px 0;
-        }
-
-        .result-box pre, .file-info-box pre {
-            background: #0d0d0d;
-            padding: 10px;
-            overflow-x: auto;
-            max-height: 120px;
-            font-size: 0.8em;
-            color: #00FF00;
-            border: 1px solid #006600;
-            margin-top: 10px;
-            white-space: pre-wrap;
-            word-break: break-all;
+            margin: 3px 0;
         }
 
         .status-info p {
-            font-size: 0.9em;
-            margin-bottom: 8px;
-            color: #00FF00;
+            font-size: 1em;
+            margin-bottom: 10px;
+            color: var(--primary-green);
+            line-height: 1.4;
         }
 
         .status-info span {
-            color: #FFFF00;
+            color: var(--yellow);
             font-weight: bold;
         }
 
+        .result-box pre,
+        .file-info-box pre {
+            background: var(--bg-darker);
+            padding: 15px;
+            overflow-x: auto;
+            max-height: 140px;
+            font-size: 0.9em;
+            color: var(--primary-green);
+            border: 1px solid var(--dark-green);
+            border-radius: 4px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-family: 'VT323', monospace;
+        }
+
         .action-button {
-            background-color: #006600;
+            background: linear-gradient(135deg, var(--dark-green), var(--secondary-green));
             color: #FFFFFF;
-            padding: 10px 20px;
-            border: 2px solid #00cc00;
+            padding: 12px 24px;
+            border: 2px solid var(--secondary-green);
+            border-radius: 6px;
             cursor: pointer;
-            margin: 5px 5px 5px 0;
+            margin: 8px 8px 8px 0;
             font-family: 'Press Start 2P', cursive;
             font-size: 0.8em;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
-            box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
             transition: all 0.2s ease;
             display: inline-block;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .action-button:hover:not(:disabled)::before {
+            left: 100%;
         }
 
         .action-button:hover:not(:disabled) {
-            background-color: #00FF00;
-            color: #000000;
-            box-shadow: 0 0 15px #00FF00;
+            background: linear-gradient(135deg, var(--secondary-green), var(--primary-green));
+            color: #FFFFFF;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            transform: translateY(-1px);
         }
 
         .action-button:disabled {
-            background-color: #333333;
+            background: linear-gradient(135deg, #333333, #555555);
             color: #666666;
             cursor: not-allowed;
             border-color: #333333;
@@ -214,170 +515,493 @@
         }
 
         .action-button.secondary {
-            background-color: #003366;
+            background: linear-gradient(135deg, #003366, #0066cc);
             border-color: #0066cc;
-            box-shadow: 0 0 8px rgba(0, 102, 255, 0.5);
+            box-shadow: 0 0 10px rgba(0, 102, 255, 0.4);
         }
 
         .action-button.secondary:hover:not(:disabled) {
-            background-color: #0066FF;
+            background: linear-gradient(135deg, #0066FF, #00AAFF);
             color: #FFFFFF;
-            box-shadow: 0 0 15px #0066FF;
+            box-shadow: 0 0 20px rgba(0, 102, 255, 0.6);
+        }
+
+        .reset-button {
+            background: linear-gradient(135deg, #660000, #cc0000);
+            border-color: #cc0000;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+        }
+
+        .reset-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #FF0000, #FF6666);
+            color: #FFFFFF;
+            box-shadow: 0 0 25px #FF0000;
         }
 
         .status-message {
-            margin-top: 25px;
-            padding: 15px;
+            margin-top: 30px;
+            padding: 20px;
             font-weight: bold;
             text-align: center;
             border: 2px solid;
+            border-radius: 8px;
             font-family: 'Press Start 2P', cursive;
             font-size: 0.9em;
+            position: relative;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .status-message.success {
-            background-color: #003300;
-            color: #00FF00;
-            border-color: #00FF00;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 255, 0, 0.05));
+            color: var(--primary-green);
+            border-color: var(--primary-green);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
         }
 
         .status-message.error {
-            background-color: #330000;
-            color: #FF0000;
-            border-color: #FF0000;
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(255, 0, 0, 0.05));
+            color: var(--red);
+            border-color: var(--red);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
         }
 
         .status-message.info {
-            background-color: #000033;
-            color: #00FFFF;
-            border-color: #00FFFF;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 255, 255, 0.05));
+            color: var(--cyan);
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
         }
 
         .status-message.warning {
-            background-color: #333300;
-            color: #FFFF00;
-            border-color: #FFFF00;
+            background: linear-gradient(135deg, rgba(255, 255, 0, 0.1), rgba(255, 255, 0, 0.05));
+            color: var(--yellow);
+            border-color: var(--yellow);
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.3);
+        }
+
+        .processing-indicator {
+            text-align: center;
+            padding: 30px;
+            font-family: 'Press Start 2P', cursive;
+            color: var(--cyan);
+            animation: pulse 2s infinite;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.05), rgba(0, 255, 255, 0.1));
+            border: 2px solid var(--cyan);
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.02); }
         }
 
         .about-section {
-            margin-top: 30px;
-            padding: 15px;
-            border: 1px solid #006600;
-            background-color: #0d0d0d;
-            font-size: 0.9em;
-            color: #009900;
+            margin-top: 40px;
+            padding: 25px;
+            border: 2px solid var(--dark-green);
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--bg-darker), var(--bg-dark));
+            font-size: 1em;
+            color: var(--secondary-green);
             text-align: center;
-            box-shadow: 0 0 5px rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
         }
 
         .about-section p {
-            margin: 5px 0;
+            margin: 8px 0;
             font-family: 'VT323', monospace;
             letter-spacing: 1px;
+            line-height: 1.4;
         }
 
         .about-section a {
-            color: #00FF00;
+            color: var(--primary-green);
             text-decoration: none;
+            transition: all 0.3s ease;
         }
 
         .about-section a:hover {
-            text-shadow: 0 0 5px #00FF00;
+            text-shadow: 0 0 15px var(--primary-green);
+            color: var(--cyan);
         }
 
         .hidden {
             display: none;
         }
 
-        .reset-button {
-            background-color: #660000;
-            border-color: #cc0000;
-            box-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                width: 98%;
+                padding: 20px;
+                margin: 10px auto;
+            }
+            
+            .codec-toggle-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .codec-toggles {
+                justify-content: center;
+            }
+            
+            .codec-toggle {
+                font-size: 0.8em;
+                padding: 6px 10px;
+            }
+            
+            .drop-area {
+                padding: 30px 20px;
+                min-height: 140px;
+            }
+            
+            .drop-area-content .main-text {
+                font-size: 1em;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .file-info {
+                grid-template-columns: 1fr;
+            }
         }
 
-        .reset-button:hover:not(:disabled) {
-            background-color: #FF0000;
-            color: #FFFFFF;
-            box-shadow: 0 0 15px #FF0000;
+        /* Mobile Portrait Specific */
+        @media (max-width: 480px) and (orientation: portrait) {
+            .container {
+                width: 99%;
+                padding: 15px;
+                margin: 5px auto;
+            }
+
+            .header {
+                margin-bottom: 25px;
+            }
+
+            .header h1 {
+                font-size: clamp(1em, 4vw, 1.8em);
+                letter-spacing: clamp(0.5px, 0.3vw, 2px);
+                line-height: 1.3;
+                margin-bottom: 10px;
+            }
+
+            .header .subtitle {
+                font-size: 1.1em;
+                margin: 3px 0;
+            }
+
+            .header .tagline {
+                font-size: 0.9em;
+                margin-top: 10px;
+            }
+
+            .codec-toggle-bar {
+                padding: 15px;
+                gap: 12px;
+                position: sticky;
+                top: 10px;
+                z-index: 100;
+                backdrop-filter: blur(10px);
+                background: linear-gradient(135deg, rgba(13, 13, 13, 0.95), rgba(26, 26, 26, 0.95));
+                border: 2px solid var(--dark-green);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            }
+
+            .codec-toggle-label {
+                font-size: 0.75em;
+                text-align: center;
+                margin-bottom: 5px;
+            }
+
+            .codec-toggles {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+
+            .codec-toggle {
+                font-size: 0.8em;
+                padding: 12px 16px;
+                gap: 8px;
+                min-height: 44px;
+                min-width: 80px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex: 1;
+                max-width: calc(50% - 4px);
+            }
+
+            .codec-checkbox {
+                width: 18px;
+                height: 18px;
+                font-size: 12px;
+                border-width: 2px;
+            }
+
+            .codec-name {
+                font-size: 0.9em;
+                text-align: center;
+            }
+
+            .drop-area {
+                padding: 30px 20px;
+                min-height: 140px;
+                margin-bottom: 25px;
+                border-radius: 12px;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .drop-area-content .main-text {
+                font-size: 0.9em;
+                line-height: 1.4;
+                margin-bottom: 8px;
+            }
+
+            .drop-area-content .sub-text {
+                font-size: 0.8em;
+                margin-bottom: 6px;
+            }
+
+            .drop-area-content .info-text {
+                font-size: 0.95em;
+                margin-top: 12px;
+            }
+
+            .drop-area-content .limit-text {
+                font-size: 0.85em;
+                margin-top: 8px;
+                color: var(--secondary-green);
+                opacity: 0.9;
+            }
+
+            #fileName {
+                font-size: 0.95em;
+                padding: 12px 20px;
+                margin-top: 16px;
+                border-radius: 8px;
+                word-break: break-all;
+            }
+
+            .workflow-section {
+                padding: 20px 15px;
+                margin-bottom: 25px;
+                border-radius: 10px;
+            }
+
+            .workflow-section h2 {
+                font-size: 1.1em;
+                margin-bottom: 18px;
+                padding-bottom: 12px;
+            }
+
+            .file-info-box {
+                padding: 18px;
+                margin-bottom: 15px;
+                border-radius: 8px;
+            }
+
+            .file-info-box h3 {
+                font-size: 0.9em;
+                margin-bottom: 12px;
+                padding-bottom: 6px;
+            }
+
+            .file-info-box p {
+                font-size: 0.95em;
+                line-height: 1.5;
+                margin: 6px 0;
+            }
+
+            .result-box {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+                border-radius: 10px;
+            }
+
+            .result-box h3 {
+                font-size: 1em;
+                margin-bottom: 10px;
+                line-height: 1.3;
+            }
+
+            .codec-info {
+                font-size: 0.85em;
+                margin-bottom: 12px;
+            }
+
+            .status-info p {
+                font-size: 0.9em;
+                line-height: 1.4;
+                margin-bottom: 8px;
+            }
+
+            .action-button {
+                font-size: 0.8em;
+                padding: 14px 20px;
+                margin: 8px 8px 8px 0;
+                border-radius: 8px;
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                line-height: 1.2;
+            }
+
+            .status-message {
+                font-size: 0.8em;
+                padding: 18px 15px;
+                margin-top: 25px;
+                border-radius: 10px;
+                line-height: 1.4;
+            }
+
+            .processing-indicator {
+                padding: 25px 15px;
+                margin: 20px 0;
+                border-radius: 10px;
+            }
+
+            .processing-indicator p {
+                font-size: 0.9em;
+                line-height: 1.3;
+            }
+
+            .about-section {
+                padding: 20px 15px;
+                margin-top: 30px;
+                border-radius: 10px;
+            }
+
+            .about-section p {
+                font-size: 0.9em;
+                margin: 8px 0;
+                line-height: 1.5;
+            }
+
+            body {
+                padding-bottom: 60px;
+            }
+
+            .container {
+                scroll-behavior: smooth;
+            }
+
+            .codec-toggle:hover {
+                transform: none;
+            }
+
+            .drop-area:hover {
+                transform: none;
+            }
+
+            .result-box:hover {
+                transform: none;
+            }
+
+            .result-box pre,
+            .file-info-box pre {
+                font-size: 0.8em;
+                padding: 12px;
+                max-height: 120px;
+                border-radius: 6px;
+                line-height: 1.3;
+                overflow-x: auto;
+                white-space: pre;
+                word-break: normal;
+            }
+
+            .file-info {
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+
+            .results-grid {
+                gap: 20px;
+                margin-top: 20px;
+            }
+
+            .status-info span {
+                display: inline-block;
+                word-break: break-word;
+            }
         }
 
-        .processing-indicator {
-            text-align: center;
-            padding: 20px;
-            font-family: 'Press Start 2P', cursive;
-            color: #00FFFF;
-            animation: pulse 2s infinite;
+        /* Very Small Mobile Devices */
+        @media (max-width: 360px) {
+            .header h1 {
+                font-size: clamp(0.9em, 5vw, 1.5em);
+                letter-spacing: 1px;
+            }
+
+            .codec-toggle {
+                font-size: 0.7em;
+                padding: 4px 6px;
+            }
+
+            .drop-area-content .main-text {
+                font-size: 0.8em;
+            }
+
+            .action-button {
+                font-size: 0.65em;
+                padding: 8px 14px;
+            }
         }
 
-        @keyframes pulse {
+        /* Additional animations and effects */
+        @keyframes flicker {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            50% { opacity: 0.8; }
         }
 
-        .codec-status {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #0d0d0d;
-            border: 1px solid #006600;
-        }
-
-        .codec-status h3 {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.8em;
-            color: #FFFF00;
-            margin-bottom: 10px;
-        }
-
-        .codec-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-        }
-
-        .codec-item {
-            padding: 8px;
-            background-color: #111111;
-            border: 1px solid #006600;
-            font-size: 0.8em;
-        }
-
-        .codec-item.loaded {
-            border-color: #00FF00;
-            color: #00FF00;
-        }
-
-        .codec-item.failed {
-            border-color: #FF0000;
-            color: #FF0000;
+        .header h1:hover {
+            animation: flicker 0.15s ease-in-out 3;
         }
     </style>
 </head>
 
 <body>
+    <div class="scanlines"></div>
+    
     <div class="container">
         <header class="header">
             <h1>RetroCompress Lite</h1>
-            <p>Universal Multi-Codec Tool</p>
-            <p style="font-size: 0.8em; color: #009900; margin-top: 10px;">Compress • Decompress • Convert Between Formats</p>
+            <p class="subtitle">Universal Multi-Codec Tool</p>
+            <p class="tagline">Compress • Decompress • Convert Between Formats</p>
         </header>
 
-        <!-- Codec Status Display -->
-        <div id="codecStatus" class="codec-status">
-            <h3>CODEC STATUS</h3>
-            <div id="codecList" class="codec-list">
-                <div class="codec-item">Loading codecs...</div>
+        <div class="codec-toggle-bar">
+            <div class="codec-toggle-label">ACTIVE CODECS:</div>
+            <div id="codecToggles" class="codec-toggles">
+                <div class="codec-toggle enabled" data-codec="loading">
+                    <div class="codec-checkbox">⟳</div>
+                    <span class="codec-name">Loading...</span>
+                </div>
             </div>
         </div>
 
         <input type="file" id="fileInput" class="hidden" accept="">
-        
+
         <label for="fileInput" id="dropArea" class="drop-area">
-            <div>
-                <p>>> DRAG & DROP ANY FILE HERE <<</p>
-                <p>RAW FILES OR COMPRESSED FILES</p>
-                <p style="font-family: 'VT323', monospace; color: #009900; font-size: 0.9em;">AUTO-DETECTION OF COMPRESSION FORMATS</p>
-                <p style="font-family: 'VT323', monospace; color: #006600; font-size: 0.8em; margin-top: 10px;">MAXIMUM FILE SIZE: 256KB</p>
-                <span id="fileName" style="display: block; margin-top: 16px; color: #FFFF00; text-shadow: 0 0 5px #FFFF00;">NO FILE SELECTED</span>
+            <div class="drop-area-content">
+                <p class="main-text" id="dropAreaMainText">>> DRAG & DROP ANY FILE &lt;&lt;&lt;</p>
+                <p class="sub-text">RAW FILES OR COMPRESSED FILES</p>
+                <p class="info-text">AUTO-DETECTION OF COMPRESSION FORMATS</p>
+                <p class="limit-text">MAXIMUM FILE SIZE: 256KB</p>
+                <span id="fileName">NO FILE SELECTED</span>
             </div>
         </label>
 
@@ -386,7 +1010,6 @@
             <p style="font-size: 0.7em; margin-top: 10px;">ANALYZING • DECOMPRESSING • COMPRESSING</p>
         </div>
 
-        <!-- File Analysis Section -->
         <div id="fileAnalysisSection" class="workflow-section hidden">
             <h2>FILE ANALYSIS</h2>
             <div id="fileAnalysisContent" class="file-info"></div>
@@ -395,13 +1018,11 @@
             </div>
         </div>
 
-        <!-- Decompression Results Section -->
         <div id="decompressionSection" class="workflow-section hidden">
             <h2>DECOMPRESSION RESULTS</h2>
             <div id="decompressionContent"></div>
         </div>
 
-        <!-- Compression Results Section -->
         <div id="compressionSection" class="workflow-section hidden">
             <h2>COMPRESSION RESULTS</h2>
             <div id="compressionContent" class="results-grid"></div>
@@ -410,17 +1031,17 @@
         <div id="statusMessage" class="status-message hidden"></div>
 
         <div class="about-section">
-            <p>MODULAR COMPRESSION TOOL - EASILY EXTENSIBLE ARCHITECTURE</p>
+            <p><strong>MODULAR COMPRESSION TOOL - EASILY EXTENSIBLE ARCHITECTURE</strong></p>
             <p>COMPRESSION FORMATS BY LEGENDARY 8-BIT DEVELOPERS</p>
-            <p style="margin-top: 10px; font-size: 0.8em;">ADD NEW CODECS BY DROPPING FILES IN THE CODECS FOLDER</p>
-            <p style="font-size: 0.8em;">POWERED BY ES6 MODULES FOR MAXIMUM MAINTAINABILITY</p>
+            <p style="margin-top: 15px; font-size: 0.9em;">CLICK CODEC NAMES ABOVE TO TOGGLE FOR COMPRESSION TESTING</p>
+            <p style="font-size: 0.9em;">ADD NEW CODECS BY DROPPING FILES IN THE CODECS FOLDER</p>
+            <p style="font-size: 0.9em;"><strong>POWERED BY ES6 MODULES FOR MAXIMUM MAINTAINABILITY</strong></p>
         </div>
     </div>
 
-    <!-- Load codec configuration and application core -->
     <script type="module">
         // Import codec configuration
-        import { CODEC_CONFIG, loadCodecs, getCodecList } from './js/codecConfig.js';
+        import { CODEC_CONFIG, loadCodecs, getCodecList, isCodecEnabled, getEnabledCodecCount, toggleCodec, disableAllCodecs, enableAllCodecs } from './js/codecConfig.js';
         import { RetroCompressApp } from './js/app.js';
 
         // Initialize application
@@ -428,21 +1049,24 @@
 
         async function initializeApp() {
             try {
+                // Update UI text based on device capabilities
+                updateUIForDevice();
+                
                 // Load all configured codecs
                 const codecs = await loadCodecs();
-                
-                // Update codec status display
-                updateCodecStatus(codecs);
-                
+
+                // Update codec toggle display
+                updateCodecToggles(codecs);
+
                 // Initialize main application
                 app = new RetroCompressApp(codecs, CODEC_CONFIG);
-                
+
                 // Setup event handlers
                 setupEventHandlers();
-                
+
                 console.log('RetroCompress Lite initialized successfully');
                 app.showStatus('Universal retro compression tool ready', 'info');
-                
+
             } catch (error) {
                 console.error('Failed to initialize application:', error);
                 document.getElementById('statusMessage').textContent = 'Failed to initialize: ' + error.message;
@@ -451,26 +1075,86 @@
             }
         }
 
-        function updateCodecStatus(codecs) {
-            const codecList = document.getElementById('codecList');
-            const codecNames = getCodecList();
+        function updateUIForDevice() {
+            const isMobile = window.innerWidth <= 480 || 'ontouchstart' in window;
+            const dropAreaMainText = document.getElementById('dropAreaMainText');
             
-            codecList.innerHTML = '';
+            if (isMobile) {
+                dropAreaMainText.textContent = '>>> TAP TO SELECT FILE <<<';
+            } else {
+                dropAreaMainText.textContent = '>>> DRAG & DROP ANY FILE <<<';
+            }
+        }
+
+        // Update UI on window resize
+        window.addEventListener('resize', updateUIForDevice);
+
+        function updateCodecToggles(codecs) {
+            const togglesContainer = document.getElementById('codecToggles');
+            const codecNames = getCodecList();
+
+            togglesContainer.innerHTML = '';
+            
             codecNames.forEach(codecName => {
-                const item = document.createElement('div');
-                item.className = 'codec-item';
-                
+                const toggle = document.createElement('div');
+                toggle.className = 'codec-toggle';
+                toggle.dataset.codecId = codecName;
+
                 if (codecs[codecName]) {
-                    item.classList.add('loaded');
+                    const isEnabled = isCodecEnabled(codecName);
+                    toggle.classList.add(isEnabled ? 'enabled' : 'disabled');
+
                     const info = CODEC_CONFIG.formats[codecName];
-                    item.innerHTML = `✅ ${info.name}<br><small>${info.author}</small>`;
+                    toggle.innerHTML = `
+                        <div class="codec-checkbox">${isEnabled ? '✓' : '✗'}</div>
+                        <span class="codec-name">${info.name}</span>
+                    `;
+
+                    // Add click handler for toggling
+                    toggle.addEventListener('click', () => {
+                        toggleCodec(codecName);
+                        updateCodecToggles(codecs); // Refresh display
+
+                        // Update app's codec list if it exists
+                        if (app) {
+                            app.refreshEnabledCodecs();
+                        }
+
+                        // Show status message
+                        const newState = isCodecEnabled(codecName);
+                        const enabledCount = getEnabledCodecCount();
+                        const statusMsg = `${info.name} ${newState ? 'enabled' : 'disabled'} (${enabledCount} codecs active)`;
+
+                        if (app) {
+                            app.showStatus(statusMsg, 'info');
+                        }
+                    });
                 } else {
-                    item.classList.add('failed');
-                    item.innerHTML = `❌ ${codecName.toUpperCase()}<br><small>Failed to load</small>`;
+                    toggle.classList.add('disabled');
+                    toggle.innerHTML = `
+                        <div class="codec-checkbox">✗</div>
+                        <span class="codec-name">${codecName.toUpperCase()}</span>
+                    `;
+                    toggle.style.opacity = '0.5';
+                    toggle.style.cursor = 'not-allowed';
                 }
-                
-                codecList.appendChild(item);
+
+                togglesContainer.appendChild(toggle);
             });
+
+            // Add a summary indicator
+            const enabledCount = getEnabledCodecCount();
+            
+            if (enabledCount === 0) {
+                const warningToggle = document.createElement('div');
+                warningToggle.className = 'codec-toggle';
+                warningToggle.style.cssText = 'border-color: #ff6600; color: #ff6600; cursor: default;';
+                warningToggle.innerHTML = `
+                    <div class="codec-checkbox">⚠</div>
+                    <span class="codec-name">NO CODECS ACTIVE</span>
+                `;
+                togglesContainer.appendChild(warningToggle);
+            }
         }
 
         function setupEventHandlers() {
@@ -518,6 +1202,66 @@
             // Global functions for decompression buttons
             window.downloadDecompressed = () => app.downloadDecompressed();
             window.useDecompressedAsInput = () => app.useDecompressedAsInput();
+
+            // Setup mobile-specific optimizations
+            if ('ontouchstart' in window) {
+                // Add touch feedback for mobile
+                document.addEventListener('touchstart', function() {}, { passive: true });
+                
+                // Optimize file input for mobile
+                fileInput.setAttribute('capture', 'environment');
+                
+                // Add haptic feedback if available
+                const addHapticFeedback = (element) => {
+                    element.addEventListener('touchstart', () => {
+                        if (navigator.vibrate) {
+                            navigator.vibrate(10);
+                        }
+                    }, { passive: true });
+                };
+                
+                // Add haptic feedback to buttons
+                document.querySelectorAll('.action-button, .codec-toggle').forEach(addHapticFeedback);
+            }
+
+            // Improve mobile file handling
+            const optimizeForMobile = () => {
+                // Add visual feedback for touch
+                const addTouchFeedback = (selector) => {
+                    document.querySelectorAll(selector).forEach(element => {
+                        element.addEventListener('touchstart', () => {
+                            element.style.opacity = '0.7';
+                        }, { passive: true });
+                        
+                        element.addEventListener('touchend', () => {
+                            setTimeout(() => {
+                                element.style.opacity = '';
+                            }, 150);
+                        }, { passive: true });
+                    });
+                };
+                
+                addTouchFeedback('.action-button');
+                addTouchFeedback('.codec-toggle');
+                addTouchFeedback('.drop-area');
+                
+                // Prevent zoom on double tap for UI elements
+                let lastTouchEnd = 0;
+                document.addEventListener('touchend', function(event) {
+                    const now = (new Date()).getTime();
+                    if (now - lastTouchEnd <= 300) {
+                        if (!event.target.closest('pre, code, textarea, input')) {
+                            event.preventDefault();
+                        }
+                    }
+                    lastTouchEnd = now;
+                }, false);
+            };
+
+            // Apply mobile optimizations if on mobile
+            if (window.innerWidth <= 480) {
+                optimizeForMobile();
+            }
         }
 
         // Initialize when DOM is ready

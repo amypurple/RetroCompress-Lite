@@ -144,18 +144,19 @@ export function debounce(func, wait) {
 }
 
 /**
- * Log performance timing
+ * Log performance timing and return result and duration
  * @param {string} operation - Name of the operation
  * @param {Function} func - Function to time
- * @returns {*} Result of the function
+ * @returns {Promise<{result: *, duration: number}>} Result of the function and the time taken in ms
  */
 export async function timeOperation(operation, func) {
     const start = performance.now();
     try {
         const result = await func();
         const end = performance.now();
-        console.log(`${operation} took ${(end - start).toFixed(2)}ms`);
-        return result;
+        const duration = end - start;
+        console.log(`${operation} took ${duration.toFixed(2)}ms`);
+        return { result, duration };
     } catch (error) {
         const end = performance.now();
         console.error(`${operation} failed after ${(end - start).toFixed(2)}ms:`, error);
