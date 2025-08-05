@@ -49,7 +49,7 @@ RetroCompress Lite/
 |-------|--------|------|-------------|------------|
 | **DAN3** | Amy Bienvenu | 2018 | Modern LZSS for ColecoVision | `.dan3` |
 | **MDK-RLE** | Marcel deKogel | 1998 | RLE for ColecoVision and Coleco ADAM | `.mdkrle` |
-| **LZF** | Marc Lehmann | 2005 | Fast byte-aligned LZ77 | `.lzf` |
+| **LZF** | Marc Lehmann and Tom Dalby | 2005-2020 | Fast byte-aligned LZ77 | `.lzf` |
 | **Pletter** | XL2S Entertainment | 2008 | Fast Z80 decompressor for MSX | `.plet5` |
 | **ZX7** | Einar Saukas | 2012 | Optimal LZ77 for ZX Spectrum | `.zx7` |
 | **ZX0** | Einar Saukas | 2021 | State-of-the-art evolution of ZX7 | `.zx0` |
@@ -233,3 +233,4 @@ To contribute a new codec:
 5. Include documentation and examples
 
 The goal is to preserve and celebrate the innovation of classic compression algorithms while making them accessible through modern web technologies.
+
