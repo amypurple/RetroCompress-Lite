@@ -17,16 +17,17 @@ export const CODEC_CONFIG = {
             category: 'rle'
         },
         lzf: {
-            name: 'LZF (Educational)',
-            author: 'Marc Lehmann',
-            year: '2005',
-            description: 'Simplified implementation of the LZF algorithm, designed for very high speed.',
-            extensions: ['.lzf'],
-            module: './codecs/lzf.js',
-            className: 'LZFCodec',
+            name: "LZF-ZX-Spectrum",
+            author: "Tom Dalby",
+            year: "2020",
+            description: "Modified LZF algorithm optimized for ZX Spectrum screen compression with END marker (0xFF) support.",
+            extensions: [".lzf"],
+            module: "./codecs/lzf.js",
+            className: "LZFCodec",
             enabled: true,
-            category: 'lz77'
-        },        
+            category: "lz77",
+            notes: "Features END marker (0xFF) for stream termination instead of requiring uncompressed size."
+        },
         dan3: {
             name: 'DAN3',
             author: 'Amy Bienvenu (NewColeco)',

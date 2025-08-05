@@ -1,187 +1,130 @@
 /**
- * LZF-Style Compression Codec
- * This is a simplified, educational implementation demonstrating the core principles of LZF.
- * It uses an optimal parser and encodes literals and matches in separate, chunked blocks.
- * This version is not specification-compliant.
+ * A highly simplified JavaScript class for optimal LZF compression using the
+ * standard relative offset mode.
  */
 export class LZFCodec {
     constructor() {
+        this.END_MARKER = 0xFF;
+        this.MAX_OFFSET = 7936;
         this.MIN_MATCH = 3;
-        this.MAX_LITERAL_CHUNK = 32;
-        this.MAX_MATCH_CHUNK = 264; // Max length for a type-1 match in standard LZF
+        this.MAX_LENGTH = 256;
     }
 
-    // The _findAllMatches, _mergeLiteralCommands, and _optimalParse methods
-    // would be identical to the ones in LZ4Codec, so we can reuse them conceptually.
-    // For a self-contained class, they are copied here.
-
-    _findAllMatches(data, pos, minMatch) {
-        const matches = [];
-        const maxBack = Math.min(pos, 8192); // LZF has a smaller max offset
-        const maxMatchLen = 270;
-
-        for (let back = 1; back <= maxBack; back++) {
-            let len = 0;
-            while (pos + len < data.length &&
-                data[pos + len] === data[pos - back + len] &&
-                len < maxMatchLen) {
-                len++;
-            }
-            if (len >= minMatch) {
-                matches.push({ offset: back, length: len });
-            }
-        }
-        return matches.sort((a, b) => b.length - a.length);
+    /**
+     * Calculates the byte cost of a literal sequence.
+     * @param {number} length The length of the literal sequence.
+     * @returns {number} The cost in bytes.
+     */
+    literalCost(length) {
+        return 1 + length;
     }
 
-    _mergeLiteralCommands(commands) {
-        if (!commands || commands.length === 0) return [];
-        const merged = [];
-        let currentLiterals = [];
+    /**
+     * Calculates the byte cost of a match.
+     * @param {number} length The length of the match.
+     * @returns {number} The cost in bytes.
+     */
+    matchCost(length) {
+        return length <= 8 ? 2 : 3;
+    }
 
-        for (const command of commands) {
-            if (command.type === 'literals') {
-                currentLiterals.push(...command.data);
-            } else {
-                if (currentLiterals.length > 0) {
-                    merged.push({ type: 'literals', data: currentLiterals });
-                    currentLiterals = [];
+    /**
+     * Compresses data using an optimal parsing algorithm (dynamic programming).
+     * @param {Uint8Array} input The raw data to compress.
+     * @returns {Uint8Array} The compressed data.
+     */
+    compress(input) {
+        const n = input.length;
+        const dp = new Array(n + 1).fill(Infinity);
+        const path = new Array(n + 1).fill(null);
+        dp[0] = 0;
+
+        for (let i = 0; i < n; i++) {
+            if (dp[i] === Infinity) continue;
+
+            // Option 1: Encode a literal run (up to 32 bytes)
+            for (let len = 1; len <= 32 && i + len <= n; len++) {
+                const cost = dp[i] + this.literalCost(len);
+                if (cost < dp[i + len]) {
+                    dp[i + len] = cost;
+                    path[i + len] = { type: 'literal', length: len, from: i };
                 }
-                merged.push(command);
-            }
-        }
-        if (currentLiterals.length > 0) {
-            merged.push({ type: 'literals', data: currentLiterals });
-        }
-        return merged;
-    }
-
-    _optimalParse(data) {
-        const n = data.length;
-        if (n === 0) return [];
-
-        const costs = new Array(n + 1).fill(Infinity);
-        const choices = new Array(n + 1).fill(null);
-        costs[0] = 0;
-
-        for (let pos = 0; pos < n; pos++) {
-            if (costs[pos] === Infinity) continue;
-
-            // Literal
-            const literalCost = costs[pos] + 9;
-            if (literalCost < costs[pos + 1]) {
-                costs[pos + 1] = literalCost;
-                choices[pos + 1] = { type: 'literal' };
             }
 
-            // Matches
-            const matches = this._findAllMatches(data, pos, this.MIN_MATCH);
-            for (const match of matches) {
-                const matchEndPos = pos + match.length;
-                if (matchEndPos <= n) {
-                    const matchCost = costs[pos] + 24;
-                    if (matchCost < costs[matchEndPos]) {
-                        costs[matchEndPos] = matchCost;
-                        choices[matchEndPos] = {
-                            type: 'match',
-                            offset: match.offset,
-                            length: match.length,
-                        };
+            // Option 2: Encode a match
+            const searchStart = Math.max(0, i - this.MAX_OFFSET);
+            for (let p = searchStart; p < i; p++) {
+                let len = 0;
+                while (i + len < n && input[p + len] === input[i + len] && len < this.MAX_LENGTH) {
+                    len++;
+                }
+                if (len >= this.MIN_MATCH) {
+                    const cost = dp[i] + this.matchCost(len);
+                    if (cost < dp[i + len]) {
+                        dp[i + len] = cost;
+                        path[i + len] = { type: 'match', length: len, offset: i - p, from: i };
                     }
                 }
             }
         }
-
-        const commands = [];
-        let pos = n;
-        while (pos > 0) {
-            const choice = choices[pos];
-            if (!choice) {
-                pos--;
-                continue;
-            }
-            if (choice.type === 'literal') {
-                commands.unshift({ type: 'literals', data: [data[pos - 1]] });
-                pos--;
-            } else {
-                commands.unshift({ type: 'match', offset: choice.offset, length: choice.length });
-                pos -= choice.length;
-            }
+        
+        // Reconstruct path and generate output
+        const operations = [];
+        for (let pos = n; pos > 0; pos = path[pos].from) {
+            operations.unshift(path[pos]);
         }
-        return this._mergeLiteralCommands(commands);
-    }
 
-    /**
-     * Compresses the input data using an LZF-style algorithm.
-     * @param {Uint8Array} data - The raw data to compress.
-     * @returns {Uint8Array} - The compressed data.
-     */
-    compress(data) {
-        const commands = this._optimalParse(data);
         const output = [];
-
-        for (const command of commands) {
-            if (command.type === 'literals') {
-                let litPos = 0;
-                while (litPos < command.data.length) {
-                    const count = Math.min(command.data.length - litPos, this.MAX_LITERAL_CHUNK);
-                    output.push(count - 1); // LZF literal control byte
-                    output.push(...command.data.slice(litPos, litPos + count));
-                    litPos += count;
+        for (const op of operations) {
+            if (op.type === 'literal') {
+                output.push(op.length - 1);
+                for (let i = 0; i < op.length; i++) {
+                    output.push(input[op.from + i]);
                 }
-            } else if (command.type === 'match') {
-                const len = command.length;
-                const offset = command.offset - 1;
-
-                if (len >= 264) { // Handle very long match (type 1)
-                     output.push(7 << 5 | (offset >> 8));
-                     output.push(264 - 2 - 7);
-                     output.push(offset & 0xFF);
-                } else if (len >= 9) { // Long match (type 1)
-                    output.push(7 << 5 | (offset >> 8));
-                    output.push(len - 2 - 7);
-                    output.push(offset & 0xFF);
-                }
-                else { // Short match (type 0)
-                    output.push(((len - 2) << 5) | (offset >> 8));
-                    output.push(offset & 0xFF);
+            } else { // match
+                const storedOffset = op.offset - 1; // Relative offset encoding
+                if (op.length <= 8) { // Short match: LLLPPPPP PPPPPPPP
+                    output.push(((op.length - 2) << 5) | ((storedOffset >> 8) & 0x1F), storedOffset & 0xFF);
+                } else { // Long match: 111PPPPP LLLLLLLL PPPPPPPP
+                    output.push(0xE0 | ((storedOffset >> 8) & 0x1F), op.length - 9, storedOffset & 0xFF);
                 }
             }
         }
+        output.push(this.END_MARKER);
         return new Uint8Array(output);
     }
 
     /**
-     * Decompresses data compressed with the LZF-style algorithm.
-     * @param {Uint8Array} data - The compressed data.
-     * @returns {Uint8Array} - The original decompressed data.
+     * Decompresses LZF data.
+     * @param {Uint8Array} input The compressed data.
+     * @returns {Uint8Array} The decompressed (original) data.
      */
-    decompress(data) {
+    decompress(input) {
         const output = [];
         let pos = 0;
 
-        while (pos < data.length) {
-            const ctrl = data[pos++];
-            if (ctrl < 32) { // Literals
-                const count = ctrl + 1;
-                if (pos + count > data.length) break;
-                output.push(...data.slice(pos, pos + count));
-                pos += count;
-            } else { // Match
-                let len = ctrl >> 5;
-                let offset = (ctrl & 0x1F) << 8;
+        while (pos < input.length && input[pos] !== this.END_MARKER) {
+            const byte = input[pos++];
+            const control = byte >> 5;
 
-                if (len === 7) { // Type 1 long match
-                    len += data[pos++];
-                }
-                len += 2;
-                
-                offset |= data[pos++];
-                offset += 1;
-
-                const srcIndex = output.length - offset;
+            if (control === 0) { // Literal copy: 000LLLLL -> length is LLLLL + 1
+                const len = (byte & 0x1F) + 1;
                 for (let i = 0; i < len; i++) {
-                    output.push(output[srcIndex + i]);
+                    output.push(input[pos++]);
+                }
+            } else if (control === 7) { // Long match: 111PPPPP
+                const len = input[pos++] + 9;
+                const storedOffset = ((byte & 0x1F) << 8) | input[pos++];
+                const copyPos = output.length - (storedOffset + 1);
+                for (let i = 0; i < len; i++) {
+                    output.push(output[copyPos + i]);
+                }
+            } else { // Short match: LLLPPPPP
+                const len = control + 2;
+                const storedOffset = ((byte & 0x1F) << 8) | input[pos++];
+                const copyPos = output.length - (storedOffset + 1);
+                for (let i = 0; i < len; i++) {
+                    output.push(output[copyPos + i]);
                 }
             }
         }
