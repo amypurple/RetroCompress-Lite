@@ -32,10 +32,21 @@ export const CODEC_CONFIG = {
             name: 'DAN3',
             author: 'Amy Bienvenu (NewColeco)',
             year: '2018',
-            description: 'Modern LZSS variant optimized for ColecoVision and other 8-bit systems',
+            description: 'LZSS variant optimized for ColecoVision and other 8-bit systems',
             extensions: ['.dan3'],
             module: './codecs/dan3.js',
             className: 'DAN3Codec',
+            enabled: true,
+            category: 'lzss'
+        },
+        dan1: {
+            name: 'DAN1',
+            author: 'Amy Bienvenu (NewColeco)',
+            year: '2016',
+            description: 'LZSS variant optimized for ColecoVision and other 8-bit systems',
+            extensions: ['.dan1'],
+            module: './codecs/dan1.js',
+            className: 'DAN1Codec',
             enabled: true,
             category: 'lzss'
         },
