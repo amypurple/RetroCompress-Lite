@@ -11,7 +11,7 @@ export const CODEC_CONFIG = {
             year: '1998',
             description: 'Classic RLE format with optimized raw/run packet encoding for Z80.',
             extensions: ['.mdk', '.rle'],
-            module: './codecs/mdkrle.js', // Make sure this path is correct
+            module: './codecs/mdkrle.js',
             className: 'MdkRLECodec',
             enabled: true,
             category: 'rle'
@@ -19,7 +19,7 @@ export const CODEC_CONFIG = {
         lzf: {
             name: "LZF-ZX-Spectrum",
             author: "Tom Dalby",
-            year: "2020",
+            year: "2018-2020",
             description: "Modified LZF algorithm optimized for ZX Spectrum screen compression with END marker (0xFF) support.",
             extensions: [".lzf"],
             module: "./codecs/lzf.js",
@@ -32,40 +32,51 @@ export const CODEC_CONFIG = {
             name: 'DAN3',
             author: 'Amy Bienvenu (NewColeco)',
             year: '2018',
-            description: 'LZSS variant optimized for ColecoVision and other 8-bit systems',
+            description: 'LZ77 variant like DAN1, using a different encoding scheme.',
             extensions: ['.dan3'],
             module: './codecs/dan3.js',
             className: 'DAN3Codec',
             enabled: true,
-            category: 'lzss'
+            category: 'lz77'
         },
         dan1: {
             name: 'DAN1',
             author: 'Amy Bienvenu (NewColeco)',
             year: '2016',
-            description: 'LZSS variant optimized for ColecoVision and other 8-bit systems',
+            description: 'LZ77 variant made for ColecoVision and other 8-bit systems.',
             extensions: ['.dan1'],
             module: './codecs/dan1.js',
             className: 'DAN1Codec',
             enabled: true,
-            category: 'lzss'
+            category: 'lz77'
         },
         pletter: {
             name: 'Pletter v0.5',
-            author: 'XL2S Entertainment (Sander Zuidema)',
+            author: 'Sander Zuidema, XL2S Entertainment',
             year: '2008',
-            description: 'Fast LZSS decompressor widely used in MSX demoscene productions',
+            description: 'LZ77-style compressor, somewhat an improved Bitbuster, use on MSX.',
             extensions: ['.plet5'],
             module: './codecs/pletter.js',
             className: 'PletterCodec',
             enabled: true,
-            category: 'lzss'
+            category: 'lz77'
+        },
+        bitbuster12: {
+            name: 'BitBuster 1.2',
+            author: 'Arjan Bakker (MrBaker), Team Bomba',
+            year: '2003',
+            description: 'Started in 2002, v1.2 in Nov 2003, in response to frustration with POPCOM (MSX).',
+            extensions: ['.pck'],
+            module: './codecs/bitbuster12.js',
+            className: 'BitBusterV12Codec',
+            enabled: true,
+            category: 'lz77'
         },
         zx7: {
             name: 'ZX7',
             author: 'Einar Saukas',
             year: '2012',
-            description: 'Optimal LZ77/LZSS achieving best-in-class compression for ZX Spectrum',
+            description: 'Optimal LZ77 achieving best-in-class compression for ZX Spectrum',
             extensions: ['.zx7'],
             module: './codecs/zx7.js',
             className: 'ZX7Codec',
@@ -74,9 +85,9 @@ export const CODEC_CONFIG = {
         },
         zx0: {
             name: 'ZX0',
-            author: 'Einar Saukas',
+            author: 'Einar Saukas (format); decoder: Einar Saukas & Urusergi',
             year: '2021',
-            description: 'State-of-the-art compression - the ultimate evolution of ZX7',
+            description: 'Main new LZ77 compressor superseding ZX7 (smaller/faster)',
             extensions: ['.zx0'],
             module: './codecs/zx0.js',
             className: 'ZX0Codec',
@@ -88,7 +99,6 @@ export const CODEC_CONFIG = {
     // Add new codec categories here for easy organization
     categories: {
         rle: 'RLE Family',
-        lzss: 'LZSS Family',
         lz77: 'LZ77 Family',
         arithmetic: 'Arithmetic Coding',
         dictionary: 'Dictionary Based'
@@ -98,7 +108,7 @@ export const CODEC_CONFIG = {
     settings: {
         maxFileSize: 256 * 1024, // 256KB
         enableDebugMode: false,
-        defaultCompressionOrder: ['zx0', 'dan3', 'zx7', 'pletter','lzf','mdkrle'] // Best to worst typically
+        defaultCompressionOrder: ['zx0', 'dan3', 'dan1', 'zx7', 'pletter', 'bitbuster12', 'lzf', 'mdkrle']
     }
 };
 
