@@ -93,7 +93,18 @@ export const CODEC_CONFIG = {
             className: 'ZX0Codec',
             enabled: true,
             category: 'lz77'
-        }
+        },
+        aplib: {
+            name: "aPLib",
+            author: "Jørgen Ibsen",
+            year: "1998",
+            description: "Adaptive aPLib encoder that pivots between a greedy parse and beam-search heuristics.",
+            extensions: [".apl", ".aplib"],
+            module: "./codecs/aplib.js",
+            className: "APLibCodec",
+            enabled: true,
+            category: "lzss"
+        },         
     },
     
     // Add new codec categories here for easy organization
