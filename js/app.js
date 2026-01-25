@@ -15,6 +15,9 @@ export class RetroCompressApp {
         this.originalFileName = '';
         this.compressionFormat = null;
         this.allCompressionResults = [];
+        this.isProcessing = false;
+        this.statusHideTimer = null;
+        this.statusAutoHideDelay = 5000;
 
         console.log('RetroCompress App initialized with', Object.keys(codecs).length, 'codecs');
     }
@@ -29,25 +32,26 @@ export class RetroCompressApp {
         this.originalFileName = file.name.split('.')[0] || 'file';
         document.getElementById('fileName').textContent = file.name;
 
-        // Reset sections
+        // Reset sections and prepare placeholders
         this.resetWorkflow();
+        this.totalCodecCount = getEnabledCodecCount();
+        this.updateCompressionResultsUI();
+        this.showStatus('Loading file…', 'info');
+        await this.yieldToUI();
 
         const reader = new FileReader();
         reader.onload = async (e) => {
             this.originalData = new Uint8Array(e.target.result);
             this.compressionFormat = detectCompressionFormat(file.name);
 
-            this.showStatus(`File loaded: ${file.name} (${Utils.formatFileSize(this.originalData.length)})`, 'info');
-            document.getElementById('processingIndicator').classList.remove('hidden');
+            this.showStatus(`Analyzing ${file.name} (${Utils.formatFileSize(this.originalData.length)})`, 'info');
+            await this.yieldToUI();
 
             await this.processFile(file.name, this.originalData, this.compressionFormat);
-
-            document.getElementById('processingIndicator').classList.add('hidden');
         };
 
         reader.onerror = () => {
             this.showStatus('Error reading file', 'error');
-            document.getElementById('processingIndicator').classList.add('hidden');
         };
 
         reader.readAsArrayBuffer(file);
@@ -97,14 +101,14 @@ export class RetroCompressApp {
         content.innerHTML = `
             <div class="file-info-box">
                 <h3>FILE INFORMATION</h3>
-                <p>NAME: <span style="color: #FFFF00;">${fileName}</span></p>
-                <p>SIZE: <span style="color: #FFFF00;">${Utils.formatFileSize(data.length)}</span> (${data.length} bytes)</p>
-                <p>CRC-32: <span style="color: #FFFF00;">${crc32}</span></p>
-                <p>TYPE: <span style="color: ${format ? '#FF6600' : '#00FF00'};">${format ? `COMPRESSED (${format.toUpperCase()})` : 'RAW DATA'}</span></p>
+                <p>NAME: <span class="text-accent-yellow">${fileName}</span></p>
+                <p>SIZE: <span class="text-accent-yellow">${Utils.formatFileSize(data.length)}</span> (${data.length} bytes)</p>
+                <p>CRC-32: <span class="text-accent-yellow">${crc32}</span></p>
+                <p>TYPE: <span class="${format ? 'text-accent-orange' : 'text-accent-green'}">${format ? `COMPRESSED (${format.toUpperCase()})` : 'RAW DATA'}</span></p>
             </div>
             <div class="file-info-box">
                 <h3>DATA PREVIEW</h3>
-                <pre style="background: #0d0d0d; padding: 10px; font-size: 0.8em; border: 1px solid #006600; margin-top: 10px;">${Utils.arrayToHex(data, 128)}</pre>
+                <pre class="hex-preview">${Utils.arrayToHex(data, 128)}</pre>
             </div>
         `;
 
@@ -121,6 +125,8 @@ export class RetroCompressApp {
         const content = document.getElementById('decompressionContent');
 
         try {
+            this.showStatus(`Decompressing with ${format.toUpperCase()}…`, 'info');
+            await this.yieldToUI();
             const codec = this.codecs[format];
             if (!codec) {
                 throw new Error(`Codec ${format} not available`);
@@ -139,37 +145,38 @@ export class RetroCompressApp {
             content.innerHTML = `
                 <div class="file-info-box">
                     <h3>DECOMPRESSION SUCCESS</h3>
-                    <p>CODEC: <span style="color: #00FFFF;">${codecInfo.name}</span></p>
-                    <p>AUTHOR: <span style="color: #009900;">${codecInfo.author}</span></p>
-                    <p>TIME: <span style="color: #00FF00;">${duration.toFixed(2)} ms</span></p>
-                    <p>ORIGINAL SIZE: <span style="color: #FFFF00;">${Utils.formatFileSize(data.length)}</span></p>
-                    <p>DECOMPRESSED SIZE: <span style="color: #00FF00;">${Utils.formatFileSize(this.decompressedData.length)}</span></p>
-                    <p>COMPRESSION RATIO: <span style="color: #00FF00;">${ratio}%</span></p>
-                    <p>DECOMPRESSED CRC-32: <span style="color: #FFFF00;">${decompressedCrc}</span></p>
-                    <div style="margin-top: 15px;">
-                        <button class="action-button secondary" onclick="downloadDecompressed()">DOWNLOAD DECOMPRESSED</button>
-                        <button class="action-button secondary" onclick="useDecompressedAsInput()">USE AS NEW INPUT</button>
+                    <p>CODEC: <span class="text-accent-cyan">${codecInfo.name}</span></p>
+                    <p>AUTHOR: <span class="text-accent-emerald">${codecInfo.author}</span></p>
+                    <p>TIME: <span class="text-accent-green">${duration.toFixed(2)} ms</span></p>
+                    <p>ORIGINAL SIZE: <span class="text-accent-yellow">${Utils.formatFileSize(data.length)}</span></p>
+                    <p>DECOMPRESSED SIZE: <span class="text-accent-green">${Utils.formatFileSize(this.decompressedData.length)}</span></p>
+                    <p>COMPRESSION RATIO: <span class="text-accent-green">${ratio}%</span></p>
+                    <p>DECOMPRESSED CRC-32: <span class="text-accent-yellow">${decompressedCrc}</span></p>
+                    <div class="button-stack">
+                        <button class="action-button secondary" onclick="downloadDecompressed()"><span>DOWNLOAD DECOMPRESSED</span></button>
+                        <button class="action-button secondary" onclick="useDecompressedAsInput()"><span>USE AS NEW INPUT</span></button>
                     </div>
                 </div>
                 <div class="file-info-box">
                     <h3>DECOMPRESSED DATA PREVIEW</h3>
-                    <pre style="background: #0d0d0d; padding: 10px; font-size: 0.8em; border: 1px solid #006600; margin-top: 10px;">${Utils.arrayToHex(this.decompressedData, 128)}</pre>
+                    <pre class="hex-preview">${Utils.arrayToHex(this.decompressedData, 128)}</pre>
                 </div>
             `;
 
             decompressionSection.classList.remove('hidden');
-            this.showStatus(`Successfully decompressed ${format.toUpperCase()} file`, 'success');
+            this.showStatus(`Decompression via ${codecInfo.name} succeeded`, 'success');
 
         } catch (error) {
             content.innerHTML = `
                 <div class="file-info-box">
                     <h3>DECOMPRESSION FAILED</h3>
-                    <p style="color: #FF0000;">ERROR: ${error.message}</p>
+                    <p class="text-error">ERROR: ${error.message}</p>
                     <p>Treating file as raw data instead.</p>
                 </div>
             `;
             decompressionSection.classList.remove('hidden');
             this.decompressedData = null;
+            this.showStatus(`Decompression failed (${format.toUpperCase()})`, 'error');
         }
     }
 
@@ -186,7 +193,10 @@ export class RetroCompressApp {
             return;
         }
 
+        this.totalCodecCount = enabledCount;
         this.allCompressionResults = [];
+        this.updateCompressionResultsUI();
+        this.showStatus('Starting compression sweep…', 'info');
         console.log(`Running compression with ${enabledCount} enabled codecs:`, codecOrder);
 
         for (const codecName of codecOrder) {
@@ -196,12 +206,15 @@ export class RetroCompressApp {
             }
 
             const codec = this.codecs[codecName];
+            const codecInfo = this.codecConfig.formats[codecName];
             let compressedData = null, testDecompressedData = null;
             let compressionSuccess = false, decompressionSuccess = false;
             let compressionError = '', decompressionError = '', ratio = 0;
             let compressionTime = 0, decompressionTime = 0;
 
             try {
+                this.showStatus(`Compressing with ${codecInfo.name}…`, 'info');
+                await this.yieldToUI();
                 const compResult = await Utils.timeOperation(
                     `${codecName} compression`,
                     () => codec.compress(data, {})
@@ -216,6 +229,8 @@ export class RetroCompressApp {
 
             if (compressionSuccess && compressedData) {
                 try {
+                    this.showStatus(`Validating ${codecInfo.name} output…`, 'info');
+                    await this.yieldToUI();
                     const decompResult = await Utils.timeOperation(
                         `${codecName} validation decompression`,
                         () => codec.decompress(compressedData, {})
@@ -242,8 +257,19 @@ export class RetroCompressApp {
                 compressionTime,
                 decompressionTime,
             });
+            this.updateCompressionResultsUI();
+            await new Promise(resolve => requestAnimationFrame(resolve));
+
+            if (compressionSuccess && decompressionSuccess) {
+                this.showStatus(`${codecInfo.name} done (${ratio.toFixed(2)}% savings)`, 'success');
+            } else if (compressionSuccess) {
+                this.showStatus(`${codecInfo.name} compressed but validation failed`, 'warning');
+            } else {
+                this.showStatus(`${codecInfo.name} failed: ${compressionError}`, 'error');
+            }
         }
 
+        this.updateCompressionResultsUI();
         this.showStatus(`Compression completed with ${enabledCount} codecs`, 'success');
     }
 
@@ -251,66 +277,7 @@ export class RetroCompressApp {
      * Display compression results sorted by efficiency
      */
     displaySortedResults() {
-        this.allCompressionResults.sort((a, b) => b.ratio - a.ratio);
-        const container = document.getElementById('compressionContent');
-        const section = document.getElementById('compressionSection');
-        container.innerHTML = '';
-
-        this.allCompressionResults.forEach(result => {
-            const resultBox = document.createElement('div');
-            resultBox.className = 'result-box';
-
-            let validationMessage = '', validationColor = '#FF0000';
-            if (!result.compressionSuccess) {
-                validationMessage = `❌ COMPRESSION FAILED: ${result.compressionError}`;
-            } else if (!result.decompressionSuccess) {
-                validationMessage = `❌ DECOMPRESSION FAILED: ${result.decompressionError || 'DATA MISMATCH'}`;
-            } else {
-                validationMessage = '✅ DECOMPRESSION VALIDATED';
-                validationColor = '#00FF00';
-            }
-
-            const compressedSize = result.compressedData ? result.compressedData.length : 0;
-            const originalCrc = '0x' + Utils.calculateCrc32(result.originalData).toString(16).toUpperCase().padStart(8, '0');
-            const decompressedCrc = result.testDecompressedData ?
-                '0x' + Utils.calculateCrc32(result.testDecompressedData).toString(16).toUpperCase().padStart(8, '0') : 'N/A';
-
-            const info = this.codecConfig.formats[result.codecName];
-
-            resultBox.innerHTML = `
-                <h3 title="${info.description}">${info.name}</h3>
-                <div class="codec-info">
-                    <p>BY ${info.author.toUpperCase()} (${info.year})</p>
-                </div>
-                <div class="status-info">
-                    <p>COMPRESSED SIZE: <span>${Utils.formatFileSize(compressedSize)}</span> (${compressedSize} bytes)</p>
-                    <p>COMPRESSION RATIO: <span>${result.ratio.toFixed(2)}%</span></p>
-                    <p>COMPRESS TIME: <span style="color: #00FFFF;">${result.compressionTime.toFixed(2)} ms</span></p>
-                    <p>DECOMPRESS TIME: <span style="color: #00FFFF;">${result.decompressionTime.toFixed(2)} ms</span></p>
-                    <p>ORIGINAL CRC-32: <span>${originalCrc}</span></p>
-                    <p>DECOMPRESSED CRC-32: <span>${decompressedCrc}</span></p>
-                    <p style="color:${validationColor};">${validationMessage}</p>
-                </div>
-                <pre>${Utils.arrayToHex(result.compressedData)}</pre>
-                ${result.compressionSuccess ?
-                    `<button class="action-button download-btn" data-codec="${result.codecName}">DOWNLOAD ${info.name.toUpperCase()}</button>` :
-                    `<button class="action-button" disabled>DOWNLOAD (FAILED)</button>`}
-            `;
-
-            container.appendChild(resultBox);
-
-            if (result.compressionSuccess) {
-                resultBox.querySelector('.download-btn').addEventListener('click', (e) => {
-                    const codec = e.target.dataset.codec;
-                    const extension = getFileExtension(codec);
-                    const filename = `${this.originalFileName}_${codec}${extension}`;
-                    Utils.downloadBlob(result.compressedData, filename);
-                    this.showStatus(`Downloaded: ${filename}`, 'success');
-                });
-            }
-        });
-
-        section.classList.remove('hidden');
+        this.updateCompressionResultsUI();
     }
 
     /**
@@ -341,11 +308,12 @@ export class RetroCompressApp {
             this.displayFileAnalysis(`${this.originalFileName}.bin`, this.originalData, null);
 
             // Process as raw data
-            document.getElementById('processingIndicator').classList.remove('hidden');
+            this.totalCodecCount = getEnabledCodecCount();
+            this.updateCompressionResultsUI();
+            this.showStatus('Recompressing decompressed data…', 'info');
             setTimeout(async () => {
                 await this.runAllCompressions(this.originalData);
                 this.displaySortedResults();
-                document.getElementById('processingIndicator').classList.add('hidden');
                 this.showStatus('Recompressed decompressed data in all formats', 'success');
             }, 100);
         }
@@ -359,11 +327,13 @@ export class RetroCompressApp {
         document.getElementById('fileAnalysisSection').classList.add('hidden');
         document.getElementById('decompressionSection').classList.add('hidden');
         document.getElementById('compressionSection').classList.add('hidden');
-        document.getElementById('statusMessage').classList.add('hidden');
+        this.hideStatusMessage(true);
 
         // Reset data
         this.decompressedData = null;
         this.allCompressionResults = [];
+        this.totalCodecCount = 0;
+        this.updateCompressionResultsUI();
     }
 
     /**
@@ -371,11 +341,25 @@ export class RetroCompressApp {
      * @param {string} message - Message to display
      * @param {string} type - Message type (success, error, warning, info)
      */
-    showStatus(message, type) {
+    showStatus(message, type, options = {}) {
         const statusDiv = document.getElementById('statusMessage');
+        if (!statusDiv) return;
+
+        const shouldPersist = options.persist ?? (type === 'error');
+
         statusDiv.textContent = message;
         statusDiv.className = `status-message ${type}`;
-        statusDiv.classList.remove('hidden');
+        statusDiv.classList.remove('hidden', 'hiding', 'showing');
+
+        // Force reflow so the animation restarts each time
+        void statusDiv.offsetWidth;
+        statusDiv.classList.add('showing');
+
+        if (shouldPersist) {
+            this.clearStatusHideTimer();
+        } else {
+            this.scheduleStatusHide();
+        }
     }
 
     /**
@@ -384,9 +368,143 @@ export class RetroCompressApp {
     refreshEnabledCodecs() {
         const enabledCount = getEnabledCodecCount();
         if (enabledCount === 0) {
-            this.showStatus('⚠️ No codecs enabled for compression testing!', 'warning');
+            this.showStatus('⚠ No codecs enabled for compression testing!', 'warning');
         }
         console.log(`Refreshed codec list: ${enabledCount} codecs enabled`);
     }
 
+    async yieldToUI() {
+        return new Promise(resolve => requestAnimationFrame(resolve));
+    }
+
+    updateCompressionResultsUI() {
+        const container = document.getElementById('compressionContent');
+        const section = document.getElementById('compressionSection');
+        if (!container || !section) return;
+
+        const total = this.totalCodecCount || this.allCompressionResults.length;
+
+        container.innerHTML = '';
+        if (this.allCompressionResults.length > 0) {
+            this.allCompressionResults.sort((a, b) => b.ratio - a.ratio);
+        }
+
+        this.allCompressionResults.forEach(result => {
+            const resultBox = document.createElement('div');
+            resultBox.className = 'result-box';
+
+            let validationMessage = '';
+            if (!result.compressionSuccess) {
+                validationMessage = `⚠ COMPRESSION FAILED: ${result.compressionError}`;
+            } else if (!result.decompressionSuccess) {
+                validationMessage = `⚠ DECOMPRESSION FAILED: ${result.decompressionError || 'DATA MISMATCH'}`;
+            } else {
+                validationMessage = '✔ DECOMPRESSION VALIDATED';
+            }
+
+            const compressedSize = result.compressedData ? result.compressedData.length : 0;
+            const originalCrc = '0x' + Utils.calculateCrc32(result.originalData).toString(16).toUpperCase().padStart(8, '0');
+            const decompressedCrc = result.testDecompressedData ?
+                '0x' + Utils.calculateCrc32(result.testDecompressedData).toString(16).toUpperCase().padStart(8, '0') : 'N/A';
+
+            const info = this.codecConfig.formats[result.codecName];
+            const extensionLabel = getFileExtension(result.codecName).toUpperCase();
+            const validationClass = (result.compressionSuccess && result.decompressionSuccess)
+                ? 'validation-message success'
+                : 'validation-message error';
+
+            resultBox.innerHTML = `
+                <h3 title="${info.description}">${info.name}</h3>
+                <div class="codec-info">
+                    <p>BY ${info.author.toUpperCase()} (${info.year})</p>
+                </div>
+                <div class="status-info">
+                    <p>COMPRESSED SIZE: <span>${Utils.formatFileSize(compressedSize)}</span> (${compressedSize} bytes)</p>
+                    <p>COMPRESSION RATIO: <span>${result.ratio.toFixed(2)}%</span></p>
+                    <p>COMPRESS TIME: <span class="text-accent-cyan">${result.compressionTime.toFixed(2)} ms</span></p>
+                    <p>DECOMPRESS TIME: <span class="text-accent-cyan">${result.decompressionTime.toFixed(2)} ms</span></p>
+                    <p>ORIGINAL CRC-32: <span>${originalCrc}</span></p>
+                    <p>DECOMPRESSED CRC-32: <span>${decompressedCrc}</span></p>
+                    <p class="${validationClass}">${validationMessage}</p>
+                </div>
+                <pre>${Utils.arrayToHex(result.compressedData)}</pre>
+                ${result.compressionSuccess ?
+                    `<button class="action-button download-btn" data-codec="${result.codecName}"><span>DOWNLOAD ${extensionLabel}</span></button>` :
+                    `<button class="action-button" disabled><span>DOWNLOAD (FAILED)</span></button>`}
+            `;
+
+            container.appendChild(resultBox);
+
+            if (result.compressionSuccess) {
+                resultBox.querySelector('.download-btn').addEventListener('click', (e) => {
+                    const button = e.currentTarget;
+                    const codec = button.dataset.codec;
+                    const extension = getFileExtension(codec);
+                    const filename = `${this.originalFileName}_${codec}${extension}`;
+                    Utils.downloadBlob(result.compressedData, filename);
+                    this.showStatus(`Downloaded: ${filename}`, 'success');
+                });
+            }
+        });
+
+        const remaining = Math.max(0, total - this.allCompressionResults.length);
+        for (let i = 0; i < remaining; i++) {
+            container.insertAdjacentHTML('beforeend', `
+                <div class="result-box skeleton-card">
+                    <div class="skeleton-block skeleton-title"></div>
+                    <div class="skeleton-block skeleton-meta"></div>
+                    <div class="skeleton-block skeleton-meta half"></div>
+                    <div class="skeleton-block skeleton-text"></div>
+                    <div class="skeleton-block skeleton-text"></div>
+                    <div class="skeleton-block skeleton-text short"></div>
+                    <div class="skeleton-block skeleton-button"></div>
+                </div>
+            `);
+        }
+
+        if (total > 0) {
+            section.classList.remove('hidden');
+        } else {
+            section.classList.add('hidden');
+        }
+    }
+
+    clearStatusHideTimer() {
+        if (this.statusHideTimer) {
+            clearTimeout(this.statusHideTimer);
+            this.statusHideTimer = null;
+        }
+    }
+
+    scheduleStatusHide() {
+        this.clearStatusHideTimer();
+        this.statusHideTimer = setTimeout(() => this.hideStatusMessage(), this.statusAutoHideDelay);
+    }
+
+    hideStatusMessage(immediate = false) {
+        const statusDiv = document.getElementById('statusMessage');
+        if (!statusDiv || statusDiv.classList.contains('hidden')) {
+            this.clearStatusHideTimer();
+            return;
+        }
+
+        this.clearStatusHideTimer();
+
+        if (immediate) {
+            statusDiv.classList.remove('showing', 'hiding');
+            statusDiv.classList.add('hidden');
+            return;
+        }
+
+        statusDiv.classList.remove('showing');
+        statusDiv.classList.add('hiding');
+
+        const onAnimationEnd = () => {
+            statusDiv.classList.add('hidden');
+            statusDiv.classList.remove('hiding');
+        };
+
+        statusDiv.addEventListener('animationend', onAnimationEnd, { once: true });
+    }
 }
+

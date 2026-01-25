@@ -18,8 +18,8 @@ export const CODEC_CONFIG = {
         },
         lzf: {
             name: "LZF-ZX-Spectrum",
-            author: "Tom Dalby",
-            year: "2018-2020",
+            author: "Marc Lehmann, Tom Dalby",
+            year: "2005‑2020",
             description: "Modified LZF algorithm optimized for ZX Spectrum screen compression with END marker (0xFF) support.",
             extensions: [".lzf"],
             module: "./codecs/lzf.js",
@@ -85,7 +85,7 @@ export const CODEC_CONFIG = {
         },
         zx0: {
             name: 'ZX0',
-            author: 'Einar Saukas (format); decoder: Einar Saukas & Urusergi',
+            author: 'Einar Saukas (& Urusergi)',
             year: '2021',
             description: 'Main new LZ77 compressor superseding ZX7 (smaller/faster)',
             extensions: ['.zx0'],
@@ -98,7 +98,7 @@ export const CODEC_CONFIG = {
             name: "aPLib",
             author: "Jørgen Ibsen",
             year: "1998",
-            description: "Adaptive aPLib encoder that pivots between a greedy parse and beam-search heuristics.",
+            description: "Beam-search encoder with reuse seeding & near-match bias.",
             extensions: [".apl", ".aplib"],
             module: "./codecs/aplib.js",
             className: "APLibCodec",

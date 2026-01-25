@@ -14,12 +14,15 @@ RetroCompress Lite/
 │   ├── app.js                    # Main application logic
 │   ├── utils.js                  # Utility functions
 │   └── codecs/                   # Individual codec modules
-│       ├── dan3.js              # DAN3 compression codec
-│       ├── lzf.js               # LZF compression codec
-│       ├── mdkrle.js            # MdK-RLE compression codec
-│       ├── pletter.js           # Pletter v0.5 codec
-│       ├── zx7.js               # ZX7 optimal compression codec
-│       └── zx0.js               # ZX0 state-of-the-art codec
+│       ├── aplib.js              # aPLib compression codec
+│       ├── bitbuster12.js        # BitBuster 1.2 compression codec
+│       ├── dan1.js               # DAN1 compression codec
+│       ├── dan3.js               # DAN3 compression codec
+│       ├── lzf.js                # LZF compression codec
+│       ├── mdkrle.js             # MdK-RLE compression codec
+│       ├── pletter.js            # Pletter 0.5 codec
+│       ├── zx7.js                # ZX7 optimal compression codec
+│       └── zx0.js                # ZX0 state-of-the-art codec
 └── README.md                     # This file
 ```
 
@@ -47,12 +50,15 @@ RetroCompress Lite/
 
 | Codec | Author | Year | Description | Extensions |
 |-------|--------|------|-------------|------------|
-| **DAN3** | Amy Bienvenu | 2018 | Modern LZSS for ColecoVision | `.dan3` |
-| **MDK-RLE** | Marcel deKogel | 1998 | RLE for ColecoVision and Coleco ADAM | `.mdkrle` |
-| **LZF** | Marc Lehmann and Tom Dalby | 2005-2020 | Fast byte-aligned LZ77 | `.lzf` |
-| **Pletter** | XL2S Entertainment | 2008 | Fast Z80 decompressor for MSX | `.plet5` |
-| **ZX7** | Einar Saukas | 2012 | Optimal LZ77 for ZX Spectrum | `.zx7` |
-| **ZX0** | Einar Saukas | 2021 | State-of-the-art evolution of ZX7 | `.zx0` |
+| **DAN3** | Amy Bienvenu | 2018 | Modern LZSS tuned for ColecoVision assets | `.dan3` |
+| **DAN1** | Amy Bienvenu | 2016 | Lightweight DAN-series ancestor for quick passes | `.dan1` |
+| **MDK-RLE** | Marcel deKogel | 1998 | ColecoVision/ADAM-ready RLE | `.mdk`, `.rle` |
+| **BitBuster 1.2** | Arjan “MrBaker” Bakker | 2003 | MSX-oriented LZ77 with variable token costs | `.pck` |
+| **LZF (ZX Spectrum)** | Marc Lehmann, Tom Dalby | 2005‑2020 | Fast byte-aligned LZ77 with 0xFF end marker | `.lzf` |
+| **Pletter 0.5** | XL2S Entertainment | 2008 | “BitBuster on steroids” for MSX | `.plet5` |
+| **ZX7** | Einar Saukas | 2012 | Optimal parse LZ77 for 8-bit screens | `.zx7` |
+| **ZX0** | Einar Saukas (& Urusergi) | 2021 | Successor to ZX7: smaller output, faster decode | `.zx0` |
+| **aPLib** | Jørgen Ibsen | 1998 | Beam-search encoder with reuse seeding & near-match bias | `.apl`, `.aplib` |
 
 ## 🔧 Adding New Codecs
 
@@ -213,12 +219,15 @@ This provides:
 
 ## 📝 License & Attribution
 
-This modular system preserves the original codec licenses and attributions:
+This project is a modular framework designed to preserve and celebrate the history of 8-bit compression. Full credit goes to the original authors:
 
-- **DAN3**: © 2018 Amy Bienvenu (NewColeco)
-- **Pletter**: © 2008 XL2S Entertainment (Sander Zuidema)
-- **ZX7**: © 2012 Einar Saukas
-- **ZX0**: © 2021 Einar Saukas
+- **aPLib**: © 1998 Jørgen Ibsen.
+- **BitBuster 1.2**: © 2003 Arjan “MrBaker” Bakker.
+- **ZX0 / ZX7**: © 2012-2021 Einar Saukas.
+- **Pletter**: © 2008 XL2S Entertainment (Sander Zuidema).
+- **DAN1 / DAN3**: © 2016-2018 Amy Bienvenu (formerly Daniel Bienvenu / NewColeco).
+- **MDK-RLE**: © 1998 Marcel de Kogel.
+- **LZF**: © 2000-2010 Marc Alexander Lehmann.
 
 The modular architecture and web interface are designed for educational and preservation purposes, maintaining full attribution to the original algorithm creators.
 
