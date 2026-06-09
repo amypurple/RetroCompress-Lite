@@ -17,6 +17,7 @@ RetroCompress Lite/
 │       ├── aplib.js              # aPLib compression codec
 │       ├── bitbuster12.js        # BitBuster 1.2 compression codec
 │       ├── dan1.js               # DAN1 compression codec
+│       ├── dan2.js               # DAN2 compression codec
 │       ├── dan3.js               # DAN3 compression codec
 │       ├── lzf.js                # LZF compression codec
 │       ├── mdkrle.js             # MdK-RLE compression codec
@@ -52,6 +53,7 @@ RetroCompress Lite/
 |-------|--------|------|-------------|------------|
 | **DAN3** | Amy Bienvenu | 2018 | Modern LZSS tuned for ColecoVision assets | `.dan3` |
 | **DAN1** | Amy Bienvenu | 2016 | Lightweight DAN-series ancestor for quick passes | `.dan1` |
+| **DAN2** | Daniel Bienvenu aka NewColeco | 2017 | DAN1-derived LZ77 with variable high-offset bit-width header | `.dan2` |
 | **MDK-RLE** | Marcel deKogel | 1998 | ColecoVision/ADAM-ready RLE | `.mdk`, `.rle` |
 | **BitBuster 1.2** | Arjan “MrBaker” Bakker | 2003 | MSX-oriented LZ77 with variable token costs | `.pck` |
 | **LZF (ZX Spectrum)** | Marc Lehmann, Tom Dalby | 2005‑2020 | Fast byte-aligned LZ77 with 0xFF end marker | `.lzf` |

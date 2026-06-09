@@ -50,6 +50,17 @@ export const CODEC_CONFIG = {
             enabled: true,
             category: 'lz77'
         },
+        dan2: {
+            name: 'DAN2',
+            author: 'Amy Bienvenu (NewColeco)',
+            year: '2017',
+            description: 'DAN1-derived LZ77 stream with a variable high-offset bit width header.',
+            extensions: ['.dan2'],
+            module: './codecs/dan2.js',
+            className: 'DAN2Codec',
+            enabled: true,
+            category: 'lz77'
+        },
         pletter: {
             name: 'Pletter v0.5',
             author: 'Sander Zuidema, XL2S Entertainment',
@@ -119,7 +130,7 @@ export const CODEC_CONFIG = {
     settings: {
         maxFileSize: 256 * 1024, // 256KB
         enableDebugMode: false,
-        defaultCompressionOrder: ['zx0', 'dan3', 'dan1', 'zx7', 'pletter', 'bitbuster12', 'lzf', 'mdkrle']
+        defaultCompressionOrder: ['zx0', 'dan3', 'dan2', 'dan1', 'zx7', 'pletter', 'bitbuster12', 'lzf', 'mdkrle']
     }
 };
 
