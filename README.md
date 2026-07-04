@@ -68,6 +68,8 @@ RetroCompress Lite/
 
 `Nibble` in this project is the public RetroCompress-Lite name for Amy/NewColeco's legacy `DAN0nibble`-derived ColecoVision format. It is not intended to describe or claim compatibility with other unrelated compressors named “nibble” in other 8-bit homebrew scenes, including Amstrad CPC tooling. This implementation preserves the DAN0nibble-style command semantics and adds a relocatable 2026 stream header for browser/project-file use.
 
+Historical source: the public AtariAge ColecoVision Programming thread “DAN0 - My proposed compression algorithm”, posted by `newcoleco` on March 19, 2010. In that thread, DAN0 was presented as an RLE-first improvement over Marcel de Kogel's Coleco library RLE: keep RLE because it is fast on ColecoVision, then improve the encoded data stream to save more ROM space. The same discussion records later cleanup of `di`/`ei` around VDP routines and compares DAN0 with early DAN1 ideas. A concrete GhostBlaster-era result reported there was 32,621 bytes with Marcel's RLE versus 29,732 bytes after DAN0, saving 2,889 bytes, about 8% of a 32KB cartridge.
+
 ## 🔧 Adding New Codecs
 
 ### Step 1: Create Codec Module

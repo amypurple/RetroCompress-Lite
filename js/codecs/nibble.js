@@ -2,6 +2,12 @@
  * NibbleCodec - legacy Amy/Daniel Bienvenu DAN0nibble-derived codec.
  *
  * Origin: DAN0nibble, Amy/Daniel Bienvenu legacy ColecoVision compressor/depacker.
+ * Historical context: public AtariAge ColecoVision Programming thread
+ * "DAN0 - My proposed compression algorithm", posted by newcoleco on
+ * March 19, 2010. DAN0 was documented as an RLE-first attempt to
+ * improve Marcel de Kogel-style ColecoVision RLE while keeping a small,
+ * fast depacker.
+ *
  * This is the Amy/NewColeco DAN0nibble-derived format, not an implementation
  * of unrelated compressors that may also use the generic "nibble" name in
  * other 8-bit homebrew scenes such as Amstrad CPC.
