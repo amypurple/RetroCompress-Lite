@@ -2,6 +2,9 @@
  * NibbleCodec - legacy Amy/Daniel Bienvenu DAN0nibble-derived codec.
  *
  * Origin: DAN0nibble, Amy/Daniel Bienvenu legacy ColecoVision compressor/depacker.
+ * This is the Amy/NewColeco DAN0nibble-derived format, not an implementation
+ * of unrelated compressors that may also use the generic "nibble" name in
+ * other 8-bit homebrew scenes such as Amstrad CPC.
  * The exact original source file is not currently present in this workspace;
  * this Studio codec preserves the documented DAN0nibble command semantics and
  * uses a relocatable 2026 stream header for Amy Studio project files.
@@ -245,3 +248,4 @@ function readDataByte(state) {
   }
   return state.input[state.dataPos++];
 }
+

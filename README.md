@@ -64,6 +64,10 @@ RetroCompress Lite/
 | **ZX0** | Einar Saukas (& Urusergi) | 2021 | Successor to ZX7: smaller output, faster decode | `.zx0` |
 | **aPLib** | Jørgen Ibsen | 1998 | Beam-search encoder with reuse seeding & near-match bias | `.apl`, `.aplib` |
 
+### Note about the Nibble codec name
+
+`Nibble` in this project is the public RetroCompress-Lite name for Amy/NewColeco's legacy `DAN0nibble`-derived ColecoVision format. It is not intended to describe or claim compatibility with other unrelated compressors named “nibble” in other 8-bit homebrew scenes, including Amstrad CPC tooling. This implementation preserves the DAN0nibble-style command semantics and adds a relocatable 2026 stream header for browser/project-file use.
+
 ## 🔧 Adding New Codecs
 
 ### Step 1: Create Codec Module
