@@ -21,6 +21,7 @@ RetroCompress Lite/
 │       ├── dan3.js               # DAN3 compression codec
 │       ├── lzf.js                # LZF compression codec
 │       ├── mdkrle.js             # MdK-RLE compression codec
+│       ├── nibble.js             # Nibble RLE + data-table reference codec
 │       ├── pletter.js            # Pletter 0.5 codec
 │       ├── zx7.js                # ZX7 optimal compression codec
 │       └── zx0.js                # ZX0 state-of-the-art codec
@@ -55,6 +56,7 @@ RetroCompress Lite/
 | **DAN1** | Amy Bienvenu | 2016 | Lightweight DAN-series ancestor for quick passes | `.dan1` |
 | **DAN2** | Daniel Bienvenu aka NewColeco | 2017 | DAN1-derived LZ77 with variable high-offset bit-width header | `.dan2` |
 | **MDK-RLE** | Marcel deKogel | 1998 | ColecoVision/ADAM-ready RLE | `.mdk`, `.rle` |
+| **Nibble** | Amy Bienvenu | 2010/2026 | Legacy DAN0nibble-style RLE with 16-value data-stream references | .nibble |
 | **BitBuster 1.2** | Arjan “MrBaker” Bakker | 2003 | MSX-oriented LZ77 with variable token costs | `.pck` |
 | **LZF (ZX Spectrum)** | Marc Lehmann, Tom Dalby | 2005‑2020 | Fast byte-aligned LZ77 with 0xFF end marker | `.lzf` |
 | **Pletter 0.5** | XL2S Entertainment | 2008 | “BitBuster on steroids” for MSX | `.plet5` |
@@ -228,6 +230,7 @@ This project is a modular framework designed to preserve and celebrate the histo
 - **ZX0 / ZX7**: © 2012-2021 Einar Saukas.
 - **Pletter**: © 2008 XL2S Entertainment (Sander Zuidema).
 - **DAN1 / DAN3**: © 2016-2018 Amy Bienvenu (formerly Daniel Bienvenu / NewColeco).
+- **Nibble**: © Amy Bienvenu / NewColeco, based on the legacy DAN0nibble decompressor idea.
 - **MDK-RLE**: © 1998 Marcel de Kogel.
 - **LZF**: © 2000-2010 Marc Alexander Lehmann.
 

@@ -5,6 +5,17 @@
 
 export const CODEC_CONFIG = {
     formats: {
+        nibble: {
+            name: 'Nibble',
+            author: 'Amy Bienvenu (NewColeco)',
+            year: '2010/2026',
+            description: 'Fast ColecoVision VRAM codec inspired by the legacy DAN0nibble RLE + 16-value data-stream reference format.',
+            extensions: ['.nibble'],
+            module: './codecs/nibble.js',
+            className: 'NibbleCodec',
+            enabled: true,
+            category: 'rle'
+        },
         mdkrle: {
             name: 'MDK-RLE',
             author: 'Marcel de Kogel',
@@ -130,7 +141,7 @@ export const CODEC_CONFIG = {
     settings: {
         maxFileSize: 256 * 1024, // 256KB
         enableDebugMode: false,
-        defaultCompressionOrder: ['zx0', 'dan3', 'dan2', 'dan1', 'zx7', 'pletter', 'bitbuster12', 'lzf', 'mdkrle']
+        defaultCompressionOrder: ['zx0', 'dan3', 'dan2', 'dan1', 'zx7', 'pletter', 'bitbuster12', 'lzf', 'nibble', 'mdkrle']
     }
 };
 
