@@ -8,8 +8,8 @@ export const CODEC_CONFIG = {
         nibble: {
             name: 'Nibble',
             author: 'Amy Bienvenu (NewColeco)',
-            year: '2010/2026',
-            description: 'Fast ColecoVision VRAM codec inspired by the legacy DAN0nibble RLE + 16-value data-stream reference format.',
+            year: 'DAN0nibble legacy / 2026 Studio codec',
+            description: 'Fast ColecoVision VRAM codec derived from Amy/Daniel Bienvenu legacy DAN0nibble: RLE control stream plus 16-value data-stream references.',
             extensions: ['.nibble'],
             module: './codecs/nibble.js',
             className: 'NibbleCodec',
@@ -63,7 +63,7 @@ export const CODEC_CONFIG = {
         },
         dan2: {
             name: 'DAN2',
-            author: 'Amy Bienvenu (NewColeco)',
+            author: 'Daniel Bienvenu aka NewColeco',
             year: '2017',
             description: 'DAN1-derived LZ77 stream with a variable high-offset bit width header.',
             extensions: ['.dan2'],
@@ -116,17 +116,6 @@ export const CODEC_CONFIG = {
             enabled: true,
             category: 'lz77'
         },
-        aplib: {
-            name: "aPLib",
-            author: "Jørgen Ibsen",
-            year: "1998",
-            description: "Beam-search encoder with reuse seeding & near-match bias.",
-            extensions: [".apl", ".aplib"],
-            module: "./codecs/aplib.js",
-            className: "APLibCodec",
-            enabled: true,
-            category: "lzss"
-        },         
     },
     
     // Add new codec categories here for easy organization
@@ -141,7 +130,7 @@ export const CODEC_CONFIG = {
     settings: {
         maxFileSize: 256 * 1024, // 256KB
         enableDebugMode: false,
-        defaultCompressionOrder: ['zx0', 'dan3', 'dan2', 'dan1', 'zx7', 'pletter', 'bitbuster12', 'lzf', 'nibble', 'mdkrle']
+        defaultCompressionOrder: ['zx0', 'dan3', 'dan2', 'dan1', 'zx7', 'pletter', 'bitbuster12', 'nibble', 'lzf', 'mdkrle']
     }
 };
 
