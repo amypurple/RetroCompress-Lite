@@ -116,6 +116,17 @@ export const CODEC_CONFIG = {
             enabled: true,
             category: 'lz77'
         },
+        zx1: {
+            name: 'ZX1',
+            author: 'Einar Saukas',
+            year: '2021',
+            description: 'Simpler ZX0-family stream with faster Z80 decompression and near-ZX0 compression.',
+            extensions: ['.zx1'],
+            module: './codecs/zx1.js',
+            className: 'ZX1Codec',
+            enabled: true,
+            category: 'lz77'
+        },
         zx0classic: {
             name: 'ZX0 Classic',
             author: 'Einar Saukas',
@@ -164,7 +175,7 @@ export const CODEC_CONFIG = {
     settings: {
         maxFileSize: 256 * 1024, // 256KB
         enableDebugMode: false,
-        defaultCompressionOrder: ['zx0', 'zx0classic', 'aplib', 'dan3', 'dan2', 'dan1', 'zx7', 'pletter', 'bitbuster12', 'nibble', 'lzf', 'mdkrle', 'splitrle']
+        defaultCompressionOrder: ['zx0', 'zx1', 'zx0classic', 'aplib', 'dan3', 'dan2', 'dan1', 'zx7', 'pletter', 'bitbuster12', 'nibble', 'lzf', 'mdkrle', 'splitrle']
     }
 };
 

@@ -6,6 +6,7 @@ const root = resolve(import.meta.dirname, "..");
 const load = async (name) => import(pathToFileURL(resolve(root, "js", "codecs", name)).href);
 const { APLibCodec } = await load("aplib.js");
 const { ZX0Codec } = await load("zx0.js");
+const { ZX1Codec } = await load("zx1.js");
 const { ZX0ClassicCodec } = await load("zx0classic.js");
 const { SplitRLECodec } = await load("splitrle.js");
 
@@ -31,6 +32,7 @@ const cases = [
 for (const [name, codec] of [
     ["aPLib", new APLibCodec()],
     ["ZX0 modern", new ZX0Codec()],
+    ["ZX1", new ZX1Codec()],
     ["ZX0 Classic", new ZX0ClassicCodec()],
     ["SplitRLE", new SplitRLECodec()]
 ]) {

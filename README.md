@@ -25,6 +25,7 @@ RetroCompress Lite/
 │       ├── pletter.js            # Pletter 0.5 codec
 │       ├── zx7.js                # ZX7 optimal compression codec
 │       ├── zx0.js                # ZX0 modern v2 codec
+│       ├── zx1.js                # ZX1 optimal codec
 │       ├── zx0classic.js         # ZX0 Classic v1 codec
 │       └── splitrle.js           # Experimental historical split-stream RLE
 └── README.md                     # This file
@@ -64,6 +65,7 @@ RetroCompress Lite/
 | **Pletter 0.5** | XL2S Entertainment | 2008 | “BitBuster on steroids” for MSX | `.plet5` |
 | **ZX7** | Einar Saukas | 2012 | Optimal parse LZ77 for 8-bit screens | `.zx7` |
 | **ZX0 Modern** | Einar Saukas (& Urusergi) | 2021 | ZX0 v2 inverted stream | `.zx0` |
+| **ZX1** | Einar Saukas | 2021 | Faster, simpler ZX0-family stream with optimal compression | `.zx1` |
 | **ZX0 Classic** | Einar Saukas | 2019-2021 | Original ZX0 v1 stream, kept distinct from v2 | `.zx0c`, `.zx0v1` |
 | **aPLib** | Jørgen Ibsen | 1998 | Beam-search encoder with reuse seeding & near-match bias | `.apl`, `.aplib` |
 | **SplitRLE (experimental)** | Historical ColecoVision format; Amy container | 1983 / 2026 | Separate control/payload RLE streams | `.srle`, `.splitrle` |
