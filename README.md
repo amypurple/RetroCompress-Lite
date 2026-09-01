@@ -24,7 +24,9 @@ RetroCompress Lite/
 │       ├── nibble.js             # Nibble RLE + data-table reference codec
 │       ├── pletter.js            # Pletter 0.5 codec
 │       ├── zx7.js                # ZX7 optimal compression codec
-│       └── zx0.js                # ZX0 state-of-the-art codec
+│       ├── zx0.js                # ZX0 modern v2 codec
+│       ├── zx0classic.js         # ZX0 Classic v1 codec
+│       └── splitrle.js           # Experimental historical split-stream RLE
 └── README.md                     # This file
 ```
 
@@ -61,8 +63,30 @@ RetroCompress Lite/
 | **LZF (ZX Spectrum)** | Marc Lehmann, Tom Dalby | 2005‑2020 | Fast byte-aligned LZ77 with 0xFF end marker | `.lzf` |
 | **Pletter 0.5** | XL2S Entertainment | 2008 | “BitBuster on steroids” for MSX | `.plet5` |
 | **ZX7** | Einar Saukas | 2012 | Optimal parse LZ77 for 8-bit screens | `.zx7` |
-| **ZX0** | Einar Saukas (& Urusergi) | 2021 | Successor to ZX7: smaller output, faster decode | `.zx0` |
+| **ZX0 Modern** | Einar Saukas (& Urusergi) | 2021 | ZX0 v2 inverted stream | `.zx0` |
+| **ZX0 Classic** | Einar Saukas | 2019-2021 | Original ZX0 v1 stream, kept distinct from v2 | `.zx0c`, `.zx0v1` |
 | **aPLib** | Jørgen Ibsen | 1998 | Beam-search encoder with reuse seeding & near-match bias | `.apl`, `.aplib` |
+| **SplitRLE (experimental)** | Historical ColecoVision format; Amy container | 1983 / 2026 | Separate control/payload RLE streams | `.srle`, `.splitrle` |
+
+### ZX0 stream versions
+
+`ZX0 Modern` and `ZX0 Classic` are deliberately separate codecs. Modern uses
+the ZX0 v2 inverted Elias-gamma stream used by Amy Studio. Classic emits the
+older v1 stream used by some established Z80 toolchains. Their files and
+decompressors are not assumed to be interchangeable.
+
+### SplitRLE status and origin
+
+SplitRLE was recovered from the graphics loader in *Ken Uston's
+Blackjack/Poker* for ColecoVision. Clyde Hager is credited as the game's
+programmer, but the descriptive name does not claim authorship of the original
+codec. The browser container adds a two-byte payload offset so its separate
+control and payload streams remain relocatable.
+
+The 2026 Amy corpus audit verified 285 graphics resources by round trip.
+SplitRLE beat MDK-RLE on 26 resources and tied on 4, but was 4,810 bytes larger
+in aggregate and about 3.3% slower in the static timing model. It is included
+here for preservation and comparison, not as a recommended default.
 
 ### Note about the Nibble codec name
 
@@ -232,6 +256,7 @@ This provides:
 This project is a modular framework designed to preserve and celebrate the history of 8-bit compression. Full credit goes to the original authors:
 
 - **aPLib**: © 1998 Jørgen Ibsen.
+- **SplitRLE**: recovered historical ColecoVision format; descriptive name and relocatable container by Amy Bienvenu.
 - **BitBuster 1.2**: © 2003 Arjan “MrBaker” Bakker.
 - **ZX0 / ZX7**: © 2012-2021 Einar Saukas.
 - **Pletter**: © 2008 XL2S Entertainment (Sander Zuidema).

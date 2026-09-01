@@ -5,6 +5,7 @@
 export class APLibCodec {
   constructor(opts = {}) {
     this.MAX_INPUT = opts.maxInput ?? (1024 * 1024);
+    this.MAX_OUTPUT = opts.maxOutput ?? (1024 * 1024);
     this.MAX_OFFSET = 0x7fff;
     this.MAX_MATCH = 0xffff;
     this.BEAM_WIDTH = opts.beamWidth ?? 32; // Largeur pour l'optimalité maximale
@@ -14,18 +15,32 @@ export class APLibCodec {
     this.MID_THRESHOLD = opts.midThreshold ?? 0x400;
     this.RLE_OFFSETS = opts.rleOffsets ?? [1, 2];
     this.SCAN_NEAR_LIMIT = opts.scanNearLimit ?? 96;
-    this.NEAR_COST_BONUS = opts.nearCostBonus ?? 1.0;
-    this.MID_COST_BONUS = opts.midCostBonus ?? 0.35;
+    // Plan with the exact encoded bit cost. Artificial offset bonuses can
+    // select a larger stream even when every candidate is otherwise valid.
+    this.NEAR_COST_BONUS = opts.nearCostBonus ?? 0;
+    this.MID_COST_BONUS = opts.midCostBonus ?? 0;
   }
 
   /* ========================= DÉCOMPRESSEUR ========================= */
   decompress(input) {
     const data = new Uint8Array(input);
     let inPtr = 0, out = [];
+    const readByte = () => {
+      if (inPtr >= data.length) throw new Error("Truncated aPLib stream");
+      return data[inPtr++];
+    };
+    const emit = (value) => {
+      if (out.length >= this.MAX_OUTPUT) throw new Error("aPLib output exceeds configured limit");
+      out.push(value);
+    };
+    const copy = (dist, len) => {
+      if (!Number.isInteger(dist) || dist <= 0 || dist > out.length) throw new Error("Invalid aPLib back-reference");
+      for (let k = 0; k < len; k++) emit(out[out.length - dist]);
+    };
     const readBit = (() => {
       let buffer = 0, count = 0;
       return () => {
-        if (count === 0) { buffer = data[inPtr++]; count = 8; }
+        if (count === 0) { buffer = readByte(); count = 8; }
         const bit = (buffer >> 7) & 1;
         buffer = (buffer << 1) & 0xff;
         count--;
@@ -38,37 +53,38 @@ export class APLibCodec {
       return res;
     };
     if (data.length === 0) return new Uint8Array(0);
-    out.push(data[inPtr++]);
+    emit(readByte());
     let lastOffset = 0, pair = true;
-    while (inPtr < data.length) {
+    let ended = false;
+    while (!ended) {
       if (readBit() === 0) {
-        out.push(data[inPtr++]);
+        emit(readByte());
         pair = true;
       } else {
         if (readBit() === 0) {
           let offHigh = readVar();
           if (pair && offHigh === 2) {
             const len = readVar();
-            for (let k = 0; k < len; k++) out.push(out[out.length - lastOffset]);
+            copy(lastOffset, len);
           } else {
             const high = pair ? offHigh - 3 : offHigh - 2;
-            const dist = (high << 8) | data[inPtr++];
+            const dist = (high << 8) | readByte();
             const len = readVar() + (dist < 0x80 || dist >= 0x7d00 ? 2 : dist >= 0x500 ? 1 : 0);
-            for (let k = 0; k < len; k++) out.push(out[out.length - dist]);
+            copy(dist, len);
             lastOffset = dist;
           }
           pair = false;
         } else if (readBit() === 0) {
-          const b = data[inPtr++];
+          const b = readByte();
           const dist = b >> 1;
-          if (dist === 0) break;
+          if (dist === 0) { ended = true; continue; }
           const len = (b & 1) + 2;
-          for (let k = 0; k < len; k++) out.push(out[out.length - dist]);
+          copy(dist, len);
           lastOffset = dist; pair = false;
         } else {
           const dist = (readBit() << 3) | (readBit() << 2) | (readBit() << 1) | readBit();
-          if (dist === 0) out.push(0);
-          else out.push(out[out.length - dist]);
+          if (dist === 0) emit(0);
+          else copy(dist, 1);
           pair = true;
         }
       }
@@ -274,6 +290,7 @@ export class APLibCodec {
   }
 
   compress(input) {
+    if (input.length > this.MAX_INPUT) throw new Error("aPLib input exceeds configured limit");
     if (input.length === 0) return new Uint8Array(0);
     const plan = this._beamPlan(input);
     const out = [input[0]];

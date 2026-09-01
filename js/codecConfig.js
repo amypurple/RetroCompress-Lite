@@ -106,15 +106,48 @@ export const CODEC_CONFIG = {
             category: 'lz77'
         },
         zx0: {
-            name: 'ZX0',
+            name: 'ZX0 Modern',
             author: 'Einar Saukas (& Urusergi)',
             year: '2021',
-            description: 'Main new LZ77 compressor superseding ZX7 (smaller/faster)',
+            description: 'Modern ZX0 v2 stream with inverted Elias-gamma bits.',
             extensions: ['.zx0'],
             module: './codecs/zx0.js',
             className: 'ZX0Codec',
             enabled: true,
             category: 'lz77'
+        },
+        zx0classic: {
+            name: 'ZX0 Classic',
+            author: 'Einar Saukas',
+            year: '2019-2021',
+            description: 'Classic ZX0 v1 stream, exposed separately to prevent v1/v2 format confusion.',
+            extensions: ['.zx0c', '.zx0v1'],
+            module: './codecs/zx0classic.js',
+            className: 'ZX0ClassicCodec',
+            enabled: true,
+            category: 'lz77'
+        },
+        aplib: {
+            name: 'aPLib',
+            author: 'Jorgen Ibsen',
+            year: '1998',
+            description: 'aPLib-compatible LZ codec with a validated browser encoder and decoder.',
+            extensions: ['.apl', '.aplib'],
+            module: './codecs/aplib.js',
+            className: 'APLibCodec',
+            enabled: true,
+            category: 'lz77'
+        },
+        splitrle: {
+            name: 'SplitRLE (Experimental)',
+            author: 'Historical ColecoVision format; Amy container',
+            year: '1983 / 2026 container',
+            description: 'Two-stream RLE recovered from Ken Uston Blackjack/Poker. Valid but usually less effective than MDK-RLE.',
+            extensions: ['.srle', '.splitrle'],
+            module: './codecs/splitrle.js',
+            className: 'SplitRLECodec',
+            enabled: true,
+            category: 'experimental'
         },
     },
     
@@ -122,6 +155,7 @@ export const CODEC_CONFIG = {
     categories: {
         rle: 'RLE Family',
         lz77: 'LZ77 Family',
+        experimental: 'Experimental / Historical',
         arithmetic: 'Arithmetic Coding',
         dictionary: 'Dictionary Based'
     },
@@ -130,7 +164,7 @@ export const CODEC_CONFIG = {
     settings: {
         maxFileSize: 256 * 1024, // 256KB
         enableDebugMode: false,
-        defaultCompressionOrder: ['zx0', 'dan3', 'dan2', 'dan1', 'zx7', 'pletter', 'bitbuster12', 'nibble', 'lzf', 'mdkrle']
+        defaultCompressionOrder: ['zx0', 'zx0classic', 'aplib', 'dan3', 'dan2', 'dan1', 'zx7', 'pletter', 'bitbuster12', 'nibble', 'lzf', 'mdkrle', 'splitrle']
     }
 };
 
