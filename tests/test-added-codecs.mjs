@@ -11,6 +11,7 @@ const { ZX2Codec } = await load("zx2.js");
 const { ZX0ClassicCodec } = await load("zx0classic.js");
 const { SplitRLECodec } = await load("splitrle.js");
 const { MegaLZCodec } = await load("megalz.js");
+const { DAN1Codec } = await load("dan1.js");
 
 let seed = 0x41c64e6d;
 const randomBytes = (length) => {
@@ -61,3 +62,14 @@ const aplib = new APLibCodec();
 assert.throws(() => aplib.decompress(Uint8Array.of(1, 0x80)), /Truncated|Invalid/);
 
 console.log("Added codec validation PASS");
+
+const dan1 = new DAN1Codec();
+const boundaryEnd = Uint8Array.of(
+    0x10, 0xFC, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x00, 0x00,
+    0xFF, 0xAA, 0x55
+);
+assert.deepEqual(
+    await dan1.decompress(boundaryEnd),
+    Uint8Array.of(0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16),
+    "DAN1 must stop at a control-byte-boundary end marker"
+);
