@@ -28,6 +28,7 @@ RetroCompress Lite/
 │       ├── zx1.js                # ZX1 optimal codec
 │       ├── zx2.js                # ZX2 compact short-offset codec
 │       ├── zx0classic.js         # ZX0 Classic v1 codec
+│       ├── megalz.js             # MegaLZ V4/DEC40-compatible codec
 │       └── splitrle.js           # Experimental historical split-stream RLE
 └── README.md                     # This file
 ```
@@ -68,6 +69,7 @@ RetroCompress Lite/
 | **ZX0 Modern** | Einar Saukas (& Urusergi) | 2021 | ZX0 v2 inverted stream | `.zx0` |
 | **ZX1** | Einar Saukas | 2021 | Faster, simpler ZX0-family stream with optimal compression | `.zx1` |
 | **ZX2** | Einar Saukas | 2021 | Compact ZX1-family stream using 8-bit offsets | `.zx2` |
+| **MegaLZ** | fyrex/mhm stream; independent Amy Studio encoder | 2005 / 2026 | MegaLZ V4/DEC40-compatible LZ stream | `.mlz` |
 | **ZX0 Classic** | Einar Saukas | 2019-2021 | Original ZX0 v1 stream, kept distinct from v2 | `.zx0c`, `.zx0v1` |
 | **aPLib** | Jørgen Ibsen | 1998 | Beam-search encoder with reuse seeding & near-match bias | `.apl`, `.aplib` |
 | **SplitRLE (experimental)** | Historical ColecoVision format; Amy container | 1983 / 2026 | Separate control/payload RLE streams | `.srle`, `.splitrle` |

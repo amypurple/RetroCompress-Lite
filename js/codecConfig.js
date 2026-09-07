@@ -160,6 +160,17 @@ export const CODEC_CONFIG = {
             enabled: true,
             category: 'lz77'
         },
+        megalz: {
+            name: 'MegaLZ',
+            author: 'fyrex/mhm stream; independent Amy Studio encoder',
+            year: '2005 / 2026',
+            description: 'DEC40-compatible LZ stream with a compact direct-to-VRAM Z80 decoder.',
+            extensions: ['.mlz'],
+            module: './codecs/megalz.js',
+            className: 'MegaLZCodec',
+            enabled: true,
+            category: 'lz77'
+        },
         splitrle: {
             name: 'SplitRLE (Experimental)',
             author: 'Historical ColecoVision format; Amy container',
@@ -186,7 +197,7 @@ export const CODEC_CONFIG = {
     settings: {
         maxFileSize: 256 * 1024, // 256KB
         enableDebugMode: false,
-        defaultCompressionOrder: ['zx0', 'zx1', 'zx2', 'zx0classic', 'aplib', 'dan3', 'dan2', 'dan1', 'zx7', 'pletter', 'bitbuster12', 'nibble', 'lzf', 'mdkrle', 'splitrle']
+        defaultCompressionOrder: ['zx0', 'zx1', 'zx2', 'zx0classic', 'aplib', 'megalz', 'dan3', 'dan2', 'dan1', 'zx7', 'pletter', 'bitbuster12', 'nibble', 'lzf', 'mdkrle', 'splitrle']
     }
 };
 
