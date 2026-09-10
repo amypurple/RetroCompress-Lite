@@ -11,6 +11,7 @@ const { ZX2Codec } = await load("zx2.js");
 const { ZX0ClassicCodec } = await load("zx0classic.js");
 const { SplitRLECodec } = await load("splitrle.js");
 const { MegaLZCodec } = await load("megalz.js");
+const { Exomizer2Codec } = await load("exomizer2.js");
 const { DAN1Codec } = await load("dan1.js");
 
 let seed = 0x41c64e6d;
@@ -39,6 +40,7 @@ for (const [name, codec] of [
     ["ZX2", new ZX2Codec()],
     ["ZX0 Classic", new ZX0ClassicCodec()],
     ["MegaLZ", new MegaLZCodec()],
+    ["Exomizer P0", new Exomizer2Codec()],
     ["SplitRLE", new SplitRLECodec()]
 ]) {
     for (const input of cases) {
