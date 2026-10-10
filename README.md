@@ -30,6 +30,7 @@ RetroCompress Lite/
 │       ├── zx0classic.js         # ZX0 Classic v1 codec
 │       ├── megalz.js             # MegaLZ V4/DEC40-compatible codec
 │       ├── exomizer2.js          # Exomizer 2 raw P0 codec
+│       ├── msc1.js               # MSC1 four-byte sequence codec
 │       └── splitrle.js           # Experimental historical split-stream RLE
 └── README.md                     # This file
 ```
@@ -72,6 +73,7 @@ RetroCompress Lite/
 | **ZX2** | Einar Saukas | 2021 | Compact ZX1-family stream using 8-bit offsets | `.zx2` |
 | **MegaLZ** | fyrex/mhm stream; independent Amy Studio encoder | 2005 / 2026 | MegaLZ V4/DEC40-compatible LZ stream | `.mlz` |
 | **Exomizer P0** | Magnus Lind; independent Amy Studio browser codec | 2002 / 2026 | Exomizer 2 raw P0 stream with deterministic optimal parsing | `.exo` |
+| **MSC1** | Marco Spedaletti; independent RetroCompress Lite encoder | 2021 / 2026 | Fast four-byte sequence codec used by ugBASIC | `.msc1` |
 | **ZX0 Classic** | Einar Saukas | 2019-2021 | Original ZX0 v1 stream, kept distinct from v2 | `.zx0c`, `.zx0v1` |
 | **aPLib** | Jørgen Ibsen | 1998 | Beam-search encoder with reuse seeding & near-match bias | `.apl`, `.aplib` |
 | **SplitRLE (experimental)** | Historical ColecoVision format; Amy container | 1983 / 2026 | Separate control/payload RLE streams | `.srle`, `.splitrle` |
@@ -272,6 +274,7 @@ This project is a modular framework designed to preserve and celebrate the histo
 - **Nibble**: © Amy Bienvenu / NewColeco, based on the legacy DAN0nibble decompressor idea.
 - **MDK-RLE**: © 1998 Marcel de Kogel.
 - **LZF**: © 2000-2010 Marc Alexander Lehmann.
+- **MSC1**: © 2021-2026 Marco Spedaletti; format-compatible browser implementation added independently for RetroCompress Lite.
 
 The modular architecture and web interface are designed for educational and preservation purposes, maintaining full attribution to the original algorithm creators.
 
